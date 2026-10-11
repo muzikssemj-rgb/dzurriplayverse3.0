@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cosmic: #0ea5e9;
+  --color-galaxy: #8b5cf6;
+  --color-gold: #f59e0b;
+  --color-cyan-electric: #22d3ee;
+  --color-space: #0b1020;
+  --color-space-2: #111936;
+  --color-space-3: #18224a;
+  --color-ink-muted: #a9b4d6;
+
+  --font-display: "Orbitron", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-glow: glow 3s ease-in-out infinite;
+  --animate-twinkle: twinkle 4s ease-in-out infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes glow {
+    0%, 100% { opacity: 0.65; }
+    50% { opacity: 1; }
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.25; }
+    50% { opacity: 0.9; }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-space text-white font-sans antialiased;
+    background-image:
+      radial-gradient(1200px 600px at 10% -10%, rgb(139 92 246 / 0.22), transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, rgb(14 165 233 / 0.18), transparent 60%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-gold);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  ::selection {
+    background: rgb(34 211 238 / 0.35);
+  }
+}
+
+@utility btn {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition
+    disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@layer components {
+  .glass {
+    @apply rounded-2xl border border-white/10 bg-space-2/80 backdrop-blur-md;
+    box-shadow: 0 0 0 1px rgb(34 211 238 / 0.06), 0 10px 40px -12px rgb(0 0 0 / 0.6);
+  }
+  .neon-border {
+    box-shadow: 0 0 0 1px rgb(34 211 238 / 0.45), 0 0 22px -4px rgb(34 211 238 / 0.55);
+  }
+  .btn-primary {
+    @apply btn text-space;
+    background: linear-gradient(180deg, #fcd34d, var(--color-gold));
+    box-shadow: 0 6px 24px -8px rgb(245 158 11 / 0.7);
+  }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-cyan {
+    @apply btn text-space;
+    background: linear-gradient(180deg, #67e8f9, var(--color-cosmic));
+    box-shadow: 0 6px 24px -8px rgb(14 165 233 / 0.7);
+  }
+  .btn-cyan:hover { filter: brightness(1.08); }
+  .btn-ghost {
+    @apply btn border border-white/15 bg-white/5 text-white hover:bg-white/10;
+  }
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-500;
+  }
+  .text-gradient {
+    background: linear-gradient(90deg, #a5f3fc, var(--color-cyan-electric) 35%, #c4b5fd 70%, var(--color-gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gold-gradient {
+    background: linear-gradient(180deg, #fde68a, var(--color-gold) 60%, #d97706);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .input {
+    @apply w-full rounded-xl border border-white/15 bg-space px-3.5 py-2.5 text-sm text-white placeholder:text-ink-muted/70
+      focus:border-cyan-electric focus:outline-none focus:ring-2 focus:ring-cyan-electric/30;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-white/90;
+  }
+  .field-error {
+    @apply mt-1 text-sm text-red-300;
+  }
+  .chip {
+    @apply inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-2xl border border-white/10 bg-space-2 px-4 py-2 text-sm font-medium
+      text-white/85 transition hover:border-cyan-electric/50 hover:text-white;
+  }
+  .chip-active {
+    @apply border-cyan-electric text-white;
+    box-shadow: 0 0 0 1px rgb(34 211 238 / 0.5), 0 0 18px -4px rgb(34 211 238 / 0.7);
+    background: linear-gradient(180deg, rgb(14 165 233 / 0.25), rgb(139 92 246 / 0.15));
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
