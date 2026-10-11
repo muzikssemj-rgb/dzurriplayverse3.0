@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Music Quest — DZURRI PLAYVERSE</title><link rel="stylesheet" href="../shared.css">
+<style>
+.staff{width:100%;height:auto;background:#fff;border-radius:14px;margin:12px 0}
+.choices{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px}
+.choices button{padding:12px 0}
+@media (max-width:420px){.choices{grid-template-columns:repeat(4,1fr)}}
+#feedback{min-height:1.6em;font-weight:700;text-align:center}
+</style></head>
+<body><main class="card" aria-live="polite">
+<h1>🎵 Music Quest</h1>
+<p>Dengar nada, lihat kedudukannya pada baluk, kemudian pilih nama not yang betul.</p>
+<div class="row"><span class="pill" id="round">Pusingan 0/10</span><span class="pill" id="score">Skor 0</span></div>
+<svg class="staff" id="staff" viewBox="0 0 360 140" role="img" aria-label="Baluk muzik"></svg>
+<div id="feedback"></div>
+<div class="row center" style="justify-content:center;margin-top:8px">
+  <button id="start" class="gold">Mula Permainan</button>
+  <button id="replay" class="ghost" hidden>🔊 Main Semula Nada</button>
+</div>
+<div class="choices" id="choices" hidden></div>
+</main>
+<script>
+const NOTES=[{n:"Do",l:"C",f:261.63,s:0},{n:"Re",l:"D",f:293.66,s:1},{n:"Mi",l:"E",f:329.63,s:2},{n:"Fa",l:"F",f:349.23,s:3},{n:"So",l:"G",f:392.0,s:4},{n:"La",l:"A",f:440.0,s:5},{n:"Ti",l:"B",f:493.88,s:6}];
+const ROUNDS=10;let round=0,score=0,cur=null,ctx=null,locked=false;
+const $=id=>document.getElementById(id);
+function tone(f){try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=f;g.gain.setValueAtTime(.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.35,ctx.currentTime+.03);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+1.1);o.connect(g).connect(ctx.destination);o.start();o.stop(ctx.currentTime+1.15)}catch(e){}}
+function drawStaff(note){const s=$("staff");let h="";for(let i=0;i<5;i++){const y=40+i*14;h+=`<line x1="20" x2="340" y1="${y}" y2="${y}" stroke="#0B1020" stroke-width="2"/>`}
+h+=`<text x="26" y="96" font-size="74" font-family="serif" fill="#0B1020">𝄞</text>`;
+if(note){const bottomLine=96;const y=bottomLine+14-note.s*7;const x=200;
+if(note.s===0)h+=`<line x1="${x-20}" x2="${x+20}" y1="${y}" y2="${y}" stroke="#0B1020" stroke-width="2"/>`;
+h+=`<ellipse cx="${x}" cy="${y}" rx="11" ry="8" transform="rotate(-20 ${x} ${y})" fill="#8B5CF6"/><line x1="${x+10}" x2="${x+10}" y1="${y}" y2="${y-44}" stroke="#8B5CF6" stroke-width="3"/>`}
+s.innerHTML=h}
+function next(){if(round>=ROUNDS)return end();round++;locked=false;cur=NOTES[Math.floor(Math.random()*NOTES.length)];$("round").textContent=`Pusingan ${round}/${ROUNDS}`;$("feedback").textContent="Apakah not ini?";$("feedback").className="";drawStaff(cur);tone(cur.f)}
+function pick(n){if(locked)return;locked=true;if(n===cur.n){score+=10;$("feedback").textContent=`✔ Betul! Ini ${cur.n} (${cur.l}).`;$("feedback").className="ok"}else{$("feedback").textContent=`✘ Jawapan: ${cur.n} (${cur.l}).`;$("feedback").className="bad"}$("score").textContent=`Skor ${score}`;setTimeout(next,1100)}
+function end(){$("choices").hidden=true;$("replay").hidden=true;$("start").hidden=false;$("start").textContent="Main Lagi";const pct=score/(ROUNDS*10);$("feedback").textContent=`Tamat! Skor anda ${score}/${ROUNDS*10}. ${pct>=.8?"Telinga muzik yang hebat! 🏆":pct>=.5?"Bagus, teruskan berlatih!":"Cuba lagi — anda pasti boleh!"}`;$("feedback").className="";drawStaff(null)}
+$("choices").innerHTML=NOTES.map(n=>`<button data-n="${n.n}" aria-label="${n.n} (${n.l})">${n.n}</button>`).join("");
+$("choices").addEventListener("click",e=>{const b=e.target.closest("button");if(b)pick(b.dataset.n)});
+document.addEventListener("keydown",e=>{const i="1234567".indexOf(e.key);if(i>=0&&!$("choices").hidden)pick(NOTES[i].n)});
+$("start").onclick=()=>{round=0;score=0;$("score").textContent="Skor 0";$("start").hidden=true;$("replay").hidden=false;$("choices").hidden=false;next()};
+$("replay").onclick=()=>cur&&tone(cur.f);
+drawStaff(null);
+</script></body></html>

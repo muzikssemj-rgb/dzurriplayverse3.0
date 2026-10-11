@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Memory Match — DZURRI PLAYVERSE</title><link rel="stylesheet" href="../shared.css">
+<style>
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.tile{aspect-ratio:1;font-size:clamp(1.4rem,7vw,2.2rem);padding:0;background:linear-gradient(180deg,#67e8f9,var(--blue));color:transparent}
+.tile.open,.tile.done{background:#fff;color:#0B1020}.tile.done{outline:3px solid #4ade80;cursor:default}
+</style></head>
+<body><main class="card">
+<h1>🧩 Memory Match</h1>
+<p>Terbalikkan dua kad. Cari semua 8 pasangan dengan langkah paling sedikit.</p>
+<div class="row"><span class="pill" id="moves">Langkah 0</span><span class="pill" id="pairs">Pasangan 0/8</span><span class="pill" id="time">0s</span><button id="restart" class="ghost">Kocok Semula</button></div>
+<div class="grid" id="grid" role="grid" aria-label="Papan kad"></div>
+<p id="status" class="center" aria-live="polite"></p>
+</main>
+<script>
+const ICONS=["🎵","🧪","🌍","🚀","🧮","📚","🎨","⚽"];const $=id=>document.getElementById(id);
+let first=null,lock=false,moves=0,pairs=0,t0=0,timer=null;
+function shuffle(a){for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+function setup(){clearInterval(timer);timer=null;first=null;lock=false;moves=0;pairs=0;$("moves").textContent="Langkah 0";$("pairs").textContent="Pasangan 0/8";$("time").textContent="0s";$("status").textContent="";
+const deck=shuffle([...ICONS,...ICONS]);$("grid").innerHTML="";deck.forEach((ic,idx)=>{const b=document.createElement("button");b.className="tile";b.dataset.icon=ic;b.textContent=ic;b.setAttribute("aria-label",`Kad ${idx+1}, tertutup`);b.onclick=()=>flip(b);$("grid").appendChild(b)})}
+function flip(b){if(lock||b.classList.contains("open")||b.classList.contains("done"))return;if(!timer){t0=Date.now();timer=setInterval(()=>$("time").textContent=`${Math.round((Date.now()-t0)/1000)}s`,500)}
+b.classList.add("open");b.setAttribute("aria-label",`Kad ${b.dataset.icon}`);if(!first){first=b;return}moves++;$("moves").textContent=`Langkah ${moves}`;
+if(first.dataset.icon===b.dataset.icon){first.classList.replace("open","done");b.classList.replace("open","done");first=null;pairs++;$("pairs").textContent=`Pasangan ${pairs}/8`;if(pairs===8){clearInterval(timer);$("status").textContent=`🏆 Hebat! Selesai dalam ${moves} langkah dan ${Math.round((Date.now()-t0)/1000)} saat.`}}
+else{lock=true;const a=first;first=null;setTimeout(()=>{a.classList.remove("open");b.classList.remove("open");a.setAttribute("aria-label","Kad tertutup");b.setAttribute("aria-label","Kad tertutup");lock=false},800)}}
+$("restart").onclick=setup;setup();
+</script></body></html>

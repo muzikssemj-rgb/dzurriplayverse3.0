@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quiz Arena — DZURRI PLAYVERSE</title><link rel="stylesheet" href="../shared.css">
+<style>
+.q{font-size:1.15rem;font-weight:700;margin:14px 0}
+.opts{display:grid;gap:8px}.opts button{text-align:left;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)}
+.opts button.right{background:#16a34a;border-color:#4ade80}.opts button.wrong{background:#b91c1c;border-color:#f87171}
+.bar{height:8px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:10px}.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));width:100%;transition:width .25s linear}
+</style></head>
+<body><main class="card">
+<h1>🧠 Quiz Arena</h1>
+<div id="intro"><p>10 soalan rawak. Anda ada 15 saat bagi setiap soalan — jawapan pantas mendapat bonus.</p><button id="start" class="gold">Mula Kuiz</button></div>
+<section id="game" hidden aria-live="polite">
+  <div class="row"><span class="pill" id="num"></span><span class="pill" id="score">Skor 0</span><span class="pill" id="time">15s</span></div>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="q" id="question"></div>
+  <div class="opts" id="opts"></div>
+</section>
+<section id="done" hidden class="center"><p class="q" id="result"></p><button id="again" class="gold">Main Lagi</button></section>
+</main>
+<script>
+const BANK=[
+["Planet manakah paling hampir dengan Matahari?",["Utarid","Zuhrah","Marikh","Bumi"],0],
+["Berapakah hasil 7 × 8?",["54","56","64","48"],1],
+["Gunung tertinggi di Malaysia ialah…",["Gunung Tahan","Gunung Ledang","Gunung Kinabalu","Gunung Jerai"],2],
+["Gas yang diperlukan tumbuhan untuk fotosintesis ialah…",["Oksigen","Nitrogen","Karbon dioksida","Hidrogen"],2],
+["Ibu negeri Sarawak ialah…",["Miri","Kuching","Sibu","Bintulu"],1],
+["Berapakah bilangan sisi bagi heksagon?",["5","6","7","8"],1],
+["Air mendidih pada suhu (pada aras laut)…",["90°C","100°C","110°C","120°C"],1],
+["Organ yang mengepam darah ke seluruh badan ialah…",["Paru-paru","Hati","Jantung","Buah pinggang"],2],
+["Sungai terpanjang di Malaysia ialah…",["Sungai Pahang","Sungai Rajang","Sungai Perak","Sungai Kinabatangan"],1],
+["Nilai 25% daripada 200 ialah…",["25","40","50","75"],2],
+["Haiwan manakah mamalia?",["Penyu","Ikan paus","Buaya","Katak"],1],
+["Alat muzik tradisional Melayu yang dipalu ialah…",["Rebab","Seruling","Kompang","Sape"],2],
+["Bentuk tenaga yang dihasilkan oleh panel solar ialah…",["Tenaga elektrik","Tenaga bunyi","Tenaga kimia","Tenaga nuklear"],0],
+["Berapakah jumlah sudut dalam sebuah segi tiga?",["90°","180°","270°","360°"],1],
+["Malaysia mencapai kemerdekaan pada tahun…",["1957","1963","1945","1965"],0],
+["Unit asas SI bagi jisim ialah…",["Gram","Kilogram","Newton","Liter"],1],
+["Benua terbesar di dunia ialah…",["Afrika","Eropah","Asia","Amerika Utara"],2],
+["Hasil 144 ÷ 12 ialah…",["10","11","12","14"],2],
+["Bahan yang menarik besi dipanggil…",["Konduktor","Magnet","Penebat","Kanta"],1],
+["Dalam muzik, not 'Do-Re-Mi' dikenali sebagai…",["Solfa","Tempo","Dinamik","Harmoni"],0]];
+const $=id=>document.getElementById(id);let qs=[],i=0,score=0,t=15,timer=null,locked=false;
+function shuffle(a){for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+function start(){qs=shuffle(BANK.slice()).slice(0,10);i=0;score=0;$("intro").hidden=true;$("done").hidden=true;$("game").hidden=false;show()}
+function show(){locked=false;const [q,opts,ans]=qs[i];$("num").textContent=`Soalan ${i+1}/10`;$("score").textContent=`Skor ${score}`;$("question").textContent=q;
+const order=shuffle(opts.map((o,k)=>({o,k})));$("opts").innerHTML="";order.forEach(({o,k})=>{const b=document.createElement("button");b.textContent=o;b.onclick=()=>answer(b,k===ans);b.dataset.right=k===ans?"1":"";$("opts").appendChild(b)});
+t=15;tick();clearInterval(timer);timer=setInterval(()=>{t--;tick();if(t<=0){clearInterval(timer);answer(null,false)}},1000)}
+function tick(){$("time").textContent=`${Math.max(t,0)}s`;$("bar").style.width=`${Math.max(t,0)/15*100}%`}
+function answer(btn,ok){if(locked)return;locked=true;clearInterval(timer);[...$("opts").children].forEach(b=>{b.disabled=true;if(b.dataset.right)b.classList.add("right")});if(btn&&!ok)btn.classList.add("wrong");if(ok)score+=100+t*10;$("score").textContent=`Skor ${score}`;setTimeout(()=>{i++;if(i<qs.length)show();else finish()},1200)}
+function finish(){$("game").hidden=true;$("done").hidden=false;$("result").textContent=`Tahniah! Skor akhir anda: ${score}`}
+$("start").onclick=start;$("again").onclick=start;
+</script></body></html>

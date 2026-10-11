@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rhythm Runner — DZURRI PLAYVERSE</title><link rel="stylesheet" href="../shared.css">
+<style>
+canvas{width:100%;height:auto;display:block;border-radius:14px;background:#070b18;touch-action:manipulation;margin-top:10px}
+</style></head>
+<body><main class="card">
+<h1>⚡ Rhythm Runner</h1>
+<p>Halangan datang mengikut rentak. Tekan <b>Space</b> / <b>↑</b>, klik atau sentuh untuk melompat.</p>
+<div class="row"><span class="pill" id="score">Skor 0</span><span class="pill" id="best">Terbaik 0</span><button id="start" class="gold">Mula</button></div>
+<canvas id="c" width="720" height="300" aria-label="Kawasan permainan Rhythm Runner" role="img" tabindex="0"></canvas>
+<p id="status" aria-live="polite" class="center"></p>
+</main>
+<script>
+const cv=document.getElementById("c"),g=cv.getContext("2d"),$=id=>document.getElementById(id);
+const W=720,H=300,GROUND=250,BPM=100,BEAT=60/BPM;
+let best=0;try{best=+localStorage.getItem("dz-rr-best")||0}catch(e){}$("best").textContent=`Terbaik ${best}`;
+let running=false,player,obs,score,last,beatClock,speed,actx=null,beatN;
+function click(f,d){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),gn=actx.createGain();o.frequency.value=f;o.type="square";gn.gain.setValueAtTime(.08,actx.currentTime);gn.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+d);o.connect(gn).connect(actx.destination);o.start();o.stop(actx.currentTime+d)}catch(e){}}
+function reset(){player={x:110,y:GROUND,vy:0,w:34,h:44,onGround:true};obs=[];score=0;beatClock=0;speed=330;beatN=0;$("score").textContent="Skor 0"}
+function jump(){if(!running){start();return}if(player.onGround){player.vy=-690;player.onGround=false;click(880,.06)}}
+function start(){reset();running=true;$("status").textContent="";$("start").textContent="Mula Semula";last=performance.now();requestAnimationFrame(loop)}
+function over(){running=false;if(score>best){best=score;try{localStorage.setItem("dz-rr-best",best)}catch(e){}}$("best").textContent=`Terbaik ${best}`;$("status").textContent=`Tamat! Skor: ${score}. Tekan Space atau sentuh untuk main lagi.`;click(140,.3)}
+function loop(now){if(!running)return;const dt=Math.min((now-last)/1000,.05);last=now;beatClock+=dt;
+if(beatClock>=BEAT){beatClock-=BEAT;beatN++;click(beatN%4===0?520:330,.04);if(beatN%2===0||Math.random()<.25){const tall=Math.random()<.3;obs.push({x:W+20,w:22,h:tall?58:36,passed:false})}speed=Math.min(560,speed+4)}
+player.vy+=1900*dt;player.y+=player.vy*dt;if(player.y>=GROUND){player.y=GROUND;player.vy=0;player.onGround=true}
+for(const o of obs){o.x-=speed*dt;if(!o.passed&&o.x+o.w<player.x){o.passed=true;score++;$("score").textContent=`Skor ${score}`}
+if(player.x+player.w-6>o.x&&player.x+6<o.x+o.w&&player.y>GROUND-o.h+4){draw(now);return over()}}
+obs=obs.filter(o=>o.x>-40);draw(now);requestAnimationFrame(loop)}
+function draw(now){g.clearRect(0,0,W,H);const grd=g.createLinearGradient(0,0,0,H);grd.addColorStop(0,"#1d1b4b");grd.addColorStop(1,"#070b18");g.fillStyle=grd;g.fillRect(0,0,W,H);
+const off=((now||0)/1000*speed)%60;g.strokeStyle="rgba(34,211,238,.25)";g.lineWidth=2;for(let x=-off;x<W;x+=60){g.beginPath();g.moveTo(x,GROUND+4);g.lineTo(x-40,H);g.stroke()}
+g.fillStyle="#22D3EE";g.fillRect(0,GROUND+2,W,3);
+const pulse=beatClock<.08?1:0;g.fillStyle=pulse?"#FDE68A":"#F59E0B";g.shadowColor="#F59E0B";g.shadowBlur=pulse?24:10;
+g.fillRect(player.x,player.y-player.h,player.w,player.h);g.shadowBlur=0;g.fillStyle="#0B1020";g.fillRect(player.x+20,player.y-player.h+10,8,8);
+for(const o of obs){g.fillStyle="#8B5CF6";g.shadowColor="#8B5CF6";g.shadowBlur=14;g.fillRect(o.x,GROUND-o.h+2,o.w,o.h);g.shadowBlur=0}}
+document.addEventListener("keydown",e=>{if(e.code==="Space"||e.code==="ArrowUp"){e.preventDefault();jump()}});
+cv.addEventListener("pointerdown",e=>{e.preventDefault();jump()});
+$("start").onclick=()=>{start();cv.focus()};
+reset();draw(0);
+</script></body></html>
