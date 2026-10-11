@@ -29,7 +29,7 @@ export function GameLauncher({ game, preview = false }: { game: LauncherGame; pr
   const [phase, setPhase] = useState<Phase>("checking");
   const [blockReason, setBlockReason] = useState<string | null>(null);
   const [frameKey, setFrameKey] = useState(0);
-  const [canFullscreen, setCanFullscreen] = useState(false);
+  const [immersive, setImmersive] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
 
@@ -47,11 +47,37 @@ export function GameLauncher({ game, preview = false }: { game: LauncherGame; pr
     fetch(`/api/games/${game.id}/play`, { method: "POST" }).catch(() => {});
   }, [game.id, preview]);
 
+  // Mod skrin penuh: guna Fullscreen API jika ada (Android, iPad, desktop); jika tidak
+  // (iPhone / sesetengah PWA), guna "mod imersif" — permainan memenuhi seluruh skrin aplikasi.
   useEffect(() => {
-    const el = document.documentElement as HTMLElement & { webkitRequestFullscreen?: unknown };
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- keupayaan pelayar hanya diketahui selepas hidrasi
-    setCanFullscreen(Boolean(document.fullscreenEnabled || el.webkitRequestFullscreen));
-  }, []);
+    if (!immersive) return;
+    const root = document.documentElement;
+    const prevOverflow = root.style.overflow;
+    root.style.overflow = "hidden";
+    // Butang "Back" telefon menutup skrin penuh, bukan meninggalkan halaman
+    window.history.pushState({ dzImmersive: true }, "");
+    const onPop = () => setImmersive(false);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setImmersive(false);
+    const onFsChange = () => {
+      const d = document as Document & { webkitFullscreenElement?: Element | null };
+      if (!document.fullscreenElement && !d.webkitFullscreenElement) setImmersive(false);
+    };
+    window.addEventListener("popstate", onPop);
+    window.addEventListener("keydown", onKey);
+    document.addEventListener("fullscreenchange", onFsChange);
+    document.addEventListener("webkitfullscreenchange", onFsChange);
+    return () => {
+      root.style.overflow = prevOverflow;
+      window.removeEventListener("popstate", onPop);
+      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("fullscreenchange", onFsChange);
+      document.removeEventListener("webkitfullscreenchange", onFsChange);
+      const d = document as Document & { webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => void };
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      else if (d.webkitFullscreenElement) d.webkitExitFullscreen?.();
+      if (window.history.state?.dzImmersive) window.history.back();
+    };
+  }, [immersive]);
 
   const startLoading = useCallback(() => {
     if (!isInternal && !navigator.onLine) {
@@ -97,15 +123,19 @@ export function GameLauncher({ game, preview = false }: { game: LauncherGame; pr
     startLoading();
   };
 
-  const fullscreen = async () => {
+  const enterFullscreen = () => {
     const el = boxRef.current as (HTMLDivElement & { webkitRequestFullscreen?: () => void }) | null;
+    setImmersive(true);
     if (!el) return;
+    // Mesti dipanggil terus dalam gesture pengguna
     try {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else if (el.requestFullscreen) await el.requestFullscreen();
-      else el.webkitRequestFullscreen?.();
+      if (document.fullscreenEnabled && el.requestFullscreen) {
+        el.requestFullscreen({ navigationUI: "hide" }).catch(() => {
+          /* tidak dibenarkan → kekal dalam mod imersif */
+        });
+      } else el.webkitRequestFullscreen?.();
     } catch {
-      /* tidak disokong */
+      /* mod imersif sahaja */
     }
   };
 
@@ -120,9 +150,9 @@ export function GameLauncher({ game, preview = false }: { game: LauncherGame; pr
           ↻ Reload Game
         </button>
       )}
-      {game.launch_mode === "embedded" && canFullscreen && phase !== "blocked" && phase !== "offline" && (
-        <button type="button" className="btn-ghost" onClick={fullscreen}>
-          ⛶ Fullscreen
+      {game.launch_mode === "embedded" && phase !== "blocked" && phase !== "offline" && (
+        <button type="button" className="btn-primary order-first" onClick={enterFullscreen}>
+          ⛶ Play Fullscreen
         </button>
       )}
       <a href={openHref} target="_blank" rel="noopener noreferrer" className="btn-ghost">
@@ -155,15 +185,31 @@ export function GameLauncher({ game, preview = false }: { game: LauncherGame; pr
     <div className="space-y-4">
       <div
         ref={boxRef}
-        className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-cyan-electric/30 bg-black sm:aspect-video [&:fullscreen]:aspect-auto [&:fullscreen]:rounded-none"
+        className={
+          immersive
+            ? "fixed inset-0 z-[300] h-[100dvh] w-screen overflow-hidden bg-black"
+            : "relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-cyan-electric/30 bg-black sm:aspect-video"
+        }
+        style={immersive ? { paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" } : undefined}
       >
+        {immersive && (
+          <button
+            type="button"
+            onClick={() => setImmersive(false)}
+            className="absolute right-2 z-20 grid size-11 place-items-center rounded-full bg-black/60 text-lg text-white ring-1 ring-white/30 backdrop-blur hover:bg-black/80"
+            style={{ top: "calc(env(safe-area-inset-top) + 8px)" }}
+            aria-label="Exit fullscreen"
+          >
+            ✕
+          </button>
+        )}
         {(phase === "loading" || phase === "slow" || phase === "ready") && (
           <iframe
             key={frameKey}
             ref={frameRef}
             src={game.game_url}
             title={game.title}
-            className="absolute inset-0 size-full border-0"
+            className={immersive ? "relative block size-full border-0" : "absolute inset-0 size-full border-0"}
             sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups allow-popups-to-escape-sandbox"
             allow="fullscreen; autoplay; gamepad"
             allowFullScreen
