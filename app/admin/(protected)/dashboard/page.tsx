@@ -3,12 +3,16 @@ import Link from "next/link";
 import { getActivity, getDashboardStats, getRecentlyUpdatedGames } from "@/lib/data/store";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ACTION_LABEL, formatDateTime } from "@/lib/format";
+import { getDailyStats, summarize } from "@/lib/data/analytics";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
-  const [stats, recent, activity] = await Promise.all([getDashboardStats(), getRecentlyUpdatedGames(6), getActivity(12)]);
+  const [stats, recent, activity, daily] = await Promise.all([getDashboardStats(), getRecentlyUpdatedGames(6), getActivity(12), getDailyStats(14)]);
+  const a = summarize(daily);
   const cards = [
+    { label: "Pelawat hari ini", value: a.today.visitors, href: "/admin/analytics", tone: "text-gold" },
+    { label: "Pelawat 7 hari", value: a.week.visitors, href: "/admin/analytics", tone: "text-gold" },
     { label: "Total games", value: stats.total, href: "/admin/games", tone: "text-cyan-electric" },
     { label: "Published", value: stats.published, href: "/admin/games?status=published", tone: "text-emerald-300" },
     { label: "Drafts", value: stats.draft, href: "/admin/games?status=draft", tone: "text-amber-200" },
@@ -26,7 +30,7 @@ export default async function DashboardPage() {
         <Link href="/admin/games/new" className="btn-primary">＋ Add New Game</Link>
       </header>
 
-      <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <ul className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {cards.map((c) => (
           <li key={c.label}>
             <Link href={c.href} className="glass block p-4 hover:border-cyan-electric/40">

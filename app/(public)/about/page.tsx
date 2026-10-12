@@ -64,7 +64,8 @@ export default function AboutPage() {
         <h2 className="mb-2 font-bold">Privacy</h2>
         <p>
           Pemain tidak perlu mendaftar. Kegemaran dan sejarah permainan disimpan dalam pelayar anda sahaja. Platform hanya
-          merekod jumlah sesi main bagi setiap permainan (tanpa maklumat peribadi) dan laporan pautan rosak yang anda hantar.
+          merekod statistik tanpa nama — bilangan lawatan, jenis peranti, waktu lawatan dan sesi main — tanpa nama, e-mel,
+          alamat IP atau kuki penjejakan, serta laporan pautan rosak yang anda hantar.
           Permainan luaran tertakluk kepada polisi laman masing-masing.
         </p>
         <p className="mt-3">

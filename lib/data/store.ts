@@ -258,9 +258,11 @@ export async function getPublishedGameUrl(id: string): Promise<string | null> {
   return g && g.status === "published" ? g.game_url : null;
 }
 
-export async function incrementPlay(id: string): Promise<void> {
+export async function incrementPlay(id: string): Promise<boolean> {
   const g = (await loadGames()).find((x) => x.id === id && x.status === "published");
-  if (g) await db().increment("games", id, "play_count", 1);
+  if (!g) return false;
+  await db().increment("games", id, "play_count", 1);
+  return true;
 }
 
 export async function addReport(gameId: string, reason: string, message: string | null): Promise<boolean> {
@@ -320,6 +322,10 @@ export async function listAdminGames(opts: { q?: string; categoryId?: string; st
   const page = Math.max(1, opts.page ?? 1);
   const from = (page - 1) * ADMIN_PAGE_SIZE;
   return { games: list.slice(from, from + ADMIN_PAGE_SIZE), total: list.length, page };
+}
+
+export async function getGameTitles(): Promise<Map<string, string>> {
+  return new Map((await loadGames()).map((g) => [g.id, g.title]));
 }
 
 export async function getAdminGame(id: string): Promise<Game | null> {

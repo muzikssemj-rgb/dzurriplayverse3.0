@@ -73,6 +73,18 @@ export function createLocalDb(): Db {
       c[id][field] = (Number(c[id][field]) || 0) + by;
       save();
     },
+    async bump(col: string, id: string, counters: Record<string, number>) {
+      const c = colOf(col);
+      const doc = (c[id] ??= {});
+      for (const [path, by] of Object.entries(counters)) {
+        const parts = path.split(".");
+        let node = doc;
+        parts.slice(0, -1).forEach((p) => (node = (node[p] ??= {}) as Doc));
+        const k = parts[parts.length - 1];
+        node[k] = (Number(node[k]) || 0) + by;
+      }
+      save();
+    },
     async delete(col: string, id: string) {
       const c = colOf(col);
       if (!c[id]) return false;

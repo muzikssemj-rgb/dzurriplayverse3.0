@@ -9,8 +9,9 @@ export ADMIN_PASSWORD=dzurrihensem
 export SITE_URL=http://localhost:3100
 unset FIREBASE_SERVICE_ACCOUNT || true
 rm -f "$DZ_LOCAL_DB_FILE"
+rm -rf .next/cache  # buang cache data daripada larian lepas
 npm run build
 npx next start -p 3100 & NEXT=$!
-trap 'kill $NEXT 2>/dev/null || true' EXIT
+trap 'kill $NEXT 2>/dev/null; pkill -f "^next-server" 2>/dev/null || true' EXIT
 sleep 4
 BASE_URL=http://localhost:3100 SHOT_DIR=test-results node tests/e2e/e2e.mjs

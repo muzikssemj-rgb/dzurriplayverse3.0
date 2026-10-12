@@ -10,6 +10,8 @@ export interface Db {
   /** Kemas kini dokumen sedia ada. Pulangkan false jika dokumen tiada. */
   update(col: string, id: string, patch: Doc): Promise<boolean>;
   increment(col: string, id: string, field: string, by: number): Promise<void>;
+  /** Tambah beberapa pembilang (kunci bertitik, cth. "hours.h08") — dokumen dicipta jika tiada. */
+  bump(col: string, id: string, counters: Record<string, number>): Promise<void>;
   /** Pulangkan false jika dokumen tiada. */
   delete(col: string, id: string): Promise<boolean>;
   /** Pertanyaan medan tunggal sahaja (tidak memerlukan indeks komposit Firestore). */

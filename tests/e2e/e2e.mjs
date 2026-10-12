@@ -143,9 +143,25 @@ let actionCapture = null;
   const authCookie = cookies.find((c) => c.name === "dz_admin");
   check(!!authCookie && authCookie.httpOnly && authCookie.sameSite === "Lax", "Session cookie is HttpOnly + SameSite");
   check(!(await page.content()).includes(PASSWORD), "Password never sent to the browser");
-  const stats = await page.locator("ul li a p:first-child").allTextContents();
-  check(stats[0] === "4" && stats[1] === "4", `Dashboard counts from DB (total=${stats[0]}, published=${stats[1]})`);
+  const tile = async (label) => (await page.locator("li", { hasText: label }).first().locator("p").first().textContent())?.trim();
+  const [tTotal, tPub] = [await tile("Total games"), await tile("Published")];
+  check(tTotal === "4" && tPub === "4", `Dashboard counts from DB (total=${tTotal}, published=${tPub})`);
   await page.screenshot({ path: `${OUT}/admin-dashboard.png`, fullPage: true });
+
+  // Analitik: lawatan awam tadi direkodkan (tanpa data peribadi)
+  const stat = rows("stats").find((r) => r.id.startsWith("daily-"));
+  check(stat && stat.visitors >= 1 && stat.views >= 3 && stat.plays >= 1, `Analytics recorded (visitors=${stat?.visitors}, views=${stat?.views}, plays=${stat?.plays})`);
+  check(!JSON.stringify(rows("stats")).match(/\d+\.\d+\.\d+\.\d+|Mozilla/), "Analytics stores no IP / user-agent");
+  const viewsBefore = stat?.views ?? 0;
+  await page.goto(BASE + "/");
+  await page.waitForTimeout(800);
+  check((rows("stats").find((r) => r.id === stat.id)?.views ?? 0) === viewsBefore, "Owner's own visits are not counted");
+  await page.goto(BASE + "/admin/analytics");
+  await page.getByRole("heading", { name: "Analitik Pengguna" }).waitFor();
+  check(await page.getByText("Pelawat hari ini").first().isVisible(), "Analytics page shows visitor KPIs");
+  check((await page.locator("svg[role=img]").count()) >= 3, "Analytics page renders 3 charts");
+  check(await page.getByText("Quiz Arena").first().isVisible(), "Top games list shows played game");
+  await page.screenshot({ path: `${OUT}/admin-analytics.png`, fullPage: true });
 
   // ------------------------------------------------------------ CRUD
   console.log("\n▶ Admin CRUD");
@@ -274,8 +290,8 @@ let actionCapture = null;
   check(await page.getByText(/Space Typing Test Pro/).first().isVisible(), "Activity log shows admin actions");
 
   // Session timeout
-  const seen = (await ctx.cookies()).find((c) => c.name === "dz_admin_seen");
-  await ctx.addCookies([{ ...seen, value: String(Date.now() - 31 * 60 * 1000) }]);
+  const seens = (await ctx.cookies()).filter((c) => c.name === "dz_admin_seen");
+  await ctx.addCookies(seens.map((c) => ({ ...c, value: String(Date.now() - 31 * 60 * 1000) })));
   await page.goto(BASE + "/admin/games");
   check(page.url().includes("/admin/login?reason=expired"), "Idle session times out → login (reason=expired)");
 

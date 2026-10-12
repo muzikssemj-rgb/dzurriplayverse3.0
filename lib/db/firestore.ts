@@ -62,6 +62,16 @@ export function createFirestoreDb(sa: ServiceAccount): Db {
         /* dokumen tiada — abaikan */
       }
     },
+    async bump(col: string, id: string, counters: Record<string, number>) {
+      const data: Doc = {};
+      for (const [path, by] of Object.entries(counters)) {
+        const parts = path.split(".");
+        let node = data;
+        parts.slice(0, -1).forEach((p) => (node = (node[p] ??= {}) as Doc));
+        node[parts[parts.length - 1]] = FieldValue.increment(by);
+      }
+      await db.collection(col).doc(id).set(data, { merge: true });
+    },
     async delete(col: string, id: string) {
       const ref = db.collection(col).doc(id);
       const s = await ref.get();

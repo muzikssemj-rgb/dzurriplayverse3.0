@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BottomNav } from "@/components/layout/NavLinks";
+import { Analytics } from "@/components/Analytics";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,6 +12,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       </main>
       <SiteFooter />
       <BottomNav />
+      <Analytics />
     </>
   );
 }
