@@ -12,23 +12,23 @@ export async function SiteFooter() {
             <LogoMark size={48} />
             <div>
               <p className="font-display font-black tracking-wider text-gradient">DZURRI PLAYVERSE</p>
-              <p className="text-xs tracking-[0.25em] text-ink-muted">ONE CREATOR. INFINITE WORLDS.</p>
+              <p className="text-xs tracking-[0.25em] text-ink-muted">MAIN · BELAJAR · TEROKA</p>
             </div>
           </div>
           <p className="max-w-sm text-sm text-ink-muted">
             “Satu platform, pelbagai permainan, pengalaman pembelajaran tanpa batas.”
           </p>
         </div>
-        <nav aria-label="Footer" className="grid grid-cols-2 gap-2 text-sm">
-          <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/games">Explore Games</Link>
-          <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/favorites">Favorites</Link>
-          <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/about">About</Link>
-          <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/creator">Creator</Link>
-          <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/install">Install App</Link>
-          <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/me">My Playverse</Link>
+        <nav aria-label="Pautan bawah" className="grid grid-cols-2 gap-2 text-sm">
+          <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/games">Teroka Permainan</Link>
+          <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/favorites">Kegemaran</Link>
+          <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/about">Tentang</Link>
+          <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/creator">Pencipta</Link>
+          <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/install">Pasang Aplikasi</Link>
+          <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/me">Profil Saya</Link>
         </nav>
         <div className="space-y-2 text-sm md:text-right">
-          <p className="font-display text-xs font-bold tracking-[0.3em] text-gold">👑 A DZURRI ORIGINAL</p>
+          <p className="font-display text-xs font-bold tracking-[0.3em] text-gold">🎵 GAMIFIKASI DALAM PENDIDIKAN MUZIK</p>
           <Link href="/creator" className="inline-flex items-center gap-3 md:flex-row-reverse">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -44,7 +44,7 @@ export async function SiteFooter() {
               <span className="block text-xs text-ink-muted">{p.title}</span>
             </span>
           </Link>
-          <p className="text-xs text-ink-muted/80">© {new Date().getFullYear()} {p.name}. All rights reserved.</p>
+          <p className="text-xs text-ink-muted/80">© {new Date().getFullYear()} {p.name}. Hak cipta terpelihara.</p>
         </div>
       </div>
     </footer>

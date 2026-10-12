@@ -17,8 +17,8 @@ export function InstallButton({ variant = "ghost", className = "" }: { variant?:
 
   if (state === "installed") {
     return variant === "compact" ? null : (
-      <span className={`btn-ghost pointer-events-none opacity-70 ${className}`} aria-label="App installed">
-        ✓ Installed
+      <span className={`btn-ghost pointer-events-none opacity-70 ${className}`} aria-label="Aplikasi sudah dipasang">
+        ✓ Sudah Dipasang
       </span>
     );
   }
@@ -39,7 +39,7 @@ export function InstallButton({ variant = "ghost", className = "" }: { variant?:
     <>
       <button type="button" onClick={onClick} className={`${cls} ${className}`} aria-haspopup="dialog">
         <DownloadIcon />
-        <span className={variant === "compact" ? "hidden sm:inline" : ""}>Install App</span>
+        <span className={variant === "compact" ? "hidden sm:inline" : ""}>Pasang Aplikasi</span>
       </button>
       {open && (
         <div
@@ -53,15 +53,15 @@ export function InstallButton({ variant = "ghost", className = "" }: { variant?:
           <div className="glass neon-border max-h-[85vh] w-full max-w-lg overflow-y-auto p-5">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 id="install-title" className="font-display text-lg font-bold">
-                Install DZURRI PLAYVERSE
+                Pasang DZURRI PLAYVERSE
               </h2>
-              <button className="btn-ghost !min-h-10 !px-3" onClick={() => setOpen(false)} autoFocus aria-label="Close">
+              <button className="btn-ghost !min-h-10 !px-3" onClick={() => setOpen(false)} autoFocus aria-label="Tutup">
                 ✕
               </button>
             </div>
             <InstallGuide platform={detectPlatform()} compact />
             <Link href="/install" className="mt-4 inline-block text-sm text-cyan-electric underline" onClick={() => setOpen(false)}>
-              See the guide for all devices →
+              Lihat panduan untuk semua peranti →
             </Link>
           </div>
         </div>

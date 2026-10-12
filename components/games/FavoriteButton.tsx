@@ -19,7 +19,7 @@ export function FavoriteButton({ gameId, title, className = "" }: { gameId: stri
         toggleFavorite(gameId);
       }}
       aria-pressed={active}
-      aria-label={active ? `Remove ${title} from favorites` : `Add ${title} to favorites`}
+      aria-label={active ? `Buang ${title} daripada kegemaran` : `Tambah ${title} ke kegemaran`}
       className={`grid size-10 place-items-center rounded-full bg-space/70 backdrop-blur transition hover:bg-space ${className}`}
     >
       <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill={active ? "#F59E0B" : "none"} stroke={active ? "#F59E0B" : "currentColor"} strokeWidth="2" strokeLinejoin="round">

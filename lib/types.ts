@@ -60,9 +60,9 @@ export type PublicGame = Pick<
 > & { category: CategoryRef | null };
 
 export const DIFFICULTY_LABEL: Record<Difficulty, string> = {
-  easy: "Easy",
-  medium: "Medium",
-  hard: "Hard",
+  easy: "Mudah",
+  medium: "Sederhana",
+  hard: "Sukar",
 };
 
 export const STATUS_LABEL: Record<GameStatus, string> = {
@@ -83,7 +83,7 @@ export type CreatorProfile = {
 
 export const DEFAULT_PROFILE: CreatorProfile = {
   name: "Dzurri",
-  title: "Creator · Educator · Game Developer",
+  title: "Pencipta · Pendidik · Pembangun Permainan",
   bio:
     "Semua permainan dalam DZURRI PLAYVERSE dibangunkan, direka dan diterbitkan oleh Dzurri. Platform ini merupakan hasil visi untuk menggabungkan teknologi, kreativiti dan pembelajaran dalam satu dunia permainan digital.",
   quote: "Bermain hari ini, membina masa depan yang lebih cerah.",

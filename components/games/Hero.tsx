@@ -12,22 +12,22 @@ export function Hero({ image, creatorName = "Dzurri" }: { image?: string | null;
       <HeroBackdrop />
       <div className="relative grid items-center gap-6 p-6 sm:p-10 md:grid-cols-[1.25fr_1fr]">
         <div className="relative z-10 max-w-xl">
-          <p className="font-display text-sm font-bold tracking-[0.25em] text-white/90 sm:text-base">WELCOME TO</p>
+          <p className="font-display text-sm font-bold tracking-[0.25em] text-white/90 sm:text-base">SELAMAT DATANG KE</p>
           <h1 id="hero-title" className="mt-1 font-display text-4xl font-black leading-[1.05] tracking-wide sm:text-5xl lg:text-6xl">
             <span className="text-gradient">DZURRI</span>
             <br />
             <span className="text-gold-gradient">PLAYVERSE</span>
           </h1>
-          <p className="mt-3 font-display text-xs font-semibold tracking-[0.2em] text-cyan-electric sm:text-sm sm:tracking-[0.35em]">PLAY · LEARN · EXPLORE</p>
+          <p className="mt-3 font-display text-xs font-semibold tracking-[0.2em] text-cyan-electric sm:text-sm sm:tracking-[0.35em]">MAIN · BELAJAR · TEROKA</p>
           <p className="mt-4 max-w-md text-sm text-white/80 sm:text-base">
-            Discover new games, explore exciting worlds and experience a universe of digital adventures.
+            Temui permainan baharu, teroka dunia yang menarik dan alami semesta pengembaraan digital sambil belajar muzik.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/games" className="btn-primary">
-              Explore Games <span aria-hidden="true">›</span>
+              Teroka Permainan <span aria-hidden="true">›</span>
             </Link>
             <Link href="/#featured" className="btn-cyan">
-              ★ Featured Games
+              ★ Permainan Pilihan
             </Link>
             <InstallButton />
           </div>

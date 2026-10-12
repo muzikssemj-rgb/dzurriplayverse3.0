@@ -6,10 +6,10 @@ import { DataNotice } from "@/components/ui/DataNotice";
 import { getCategories, getPublishedGames } from "@/lib/data/public";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Explore Games" };
+export const metadata: Metadata = { title: "Teroka Permainan" };
 
 const PAGE_SIZE = 24;
-const SORTS = { order: "Recommended order", popular: "Popular", recent: "Recently added", title: "A–Z" } as const;
+const SORTS = { order: "Susunan disyorkan", popular: "Popular", recent: "Baru ditambah", title: "A–Z" } as const;
 
 export default async function GamesPage(props: PageProps<"/games">) {
   const sp = await props.searchParams;
@@ -35,7 +35,7 @@ export default async function GamesPage(props: PageProps<"/games">) {
     offset: (page - 1) * PAGE_SIZE,
   });
 
-  const heading = featured ? "Featured Games" : category ? category.name : "All Games";
+  const heading = featured ? "Permainan Pilihan" : category ? category.name : "Semua Permainan";
   const pages = result.ok ? Math.max(1, Math.ceil(result.data.total / PAGE_SIZE)) : 1;
   const qs = (over: Record<string, string>) => {
     const p = new URLSearchParams();
@@ -57,20 +57,20 @@ export default async function GamesPage(props: PageProps<"/games">) {
 
       <form method="get" action="/games" role="search" className="glass grid gap-3 p-4 sm:grid-cols-[1fr_auto_auto_auto]">
         <div>
-          <label htmlFor="q" className="sr-only">Search by name or tag</label>
-          <input id="q" name="q" defaultValue={q} maxLength={60} placeholder="Search by name or tag…" className="input" />
+          <label htmlFor="q" className="sr-only">Cari mengikut nama atau tag</label>
+          <input id="q" name="q" defaultValue={q} maxLength={60} placeholder="Cari mengikut nama atau tag…" className="input" />
         </div>
         <div>
-          <label htmlFor="category" className="sr-only">Category</label>
+          <label htmlFor="category" className="sr-only">Kategori</label>
           <select id="category" name="category" defaultValue={category?.slug ?? ""} className="input">
-            <option value="">All categories</option>
+            <option value="">Semua kategori</option>
             {cats.data.map((c) => (
               <option key={c.id} value={c.slug}>{c.name}</option>
             ))}
           </select>
         </div>
         <div>
-          <label htmlFor="sort" className="sr-only">Sort</label>
+          <label htmlFor="sort" className="sr-only">Susunan</label>
           <select id="sort" name="sort" defaultValue={sortKey} className="input">
             {Object.entries(SORTS).map(([k, v]) => (
               <option key={k} value={k}>{v}</option>
@@ -79,17 +79,17 @@ export default async function GamesPage(props: PageProps<"/games">) {
         </div>
         {tag && <input type="hidden" name="tag" value={tag} />}
         {featured && <input type="hidden" name="featured" value="1" />}
-        <button className="btn-cyan" type="submit">Search</button>
+        <button className="btn-cyan" type="submit">Cari</button>
       </form>
 
       <CategoryChips categories={cats.data} active={category?.slug ?? null} />
 
       {(q || tag || featured) && (
         <div className="flex flex-wrap items-center gap-2 text-sm">
-          <span className="text-ink-muted">Filters:</span>
+          <span className="text-ink-muted">Penapis:</span>
           {q && <Link className="chip !min-h-9" href={qs({ q: "", page: "" })}>“{q}” ✕</Link>}
           {tag && <Link className="chip !min-h-9" href={qs({ tag: "", page: "" })}>#{tag} ✕</Link>}
-          {featured && <Link className="chip !min-h-9" href={qs({ featured: "", page: "" })}>Featured ✕</Link>}
+          {featured && <Link className="chip !min-h-9" href={qs({ featured: "", page: "" })}>Pilihan ✕</Link>}
         </div>
       )}
 
@@ -97,21 +97,21 @@ export default async function GamesPage(props: PageProps<"/games">) {
         <DataNotice error={result.error} />
       ) : result.data.games.length === 0 ? (
         <div className="glass p-8 text-center">
-          <p className="text-lg font-semibold">No games found.</p>
-          <p className="mt-1 text-ink-muted">Try another keyword or category.</p>
-          <Link href="/games" className="btn-ghost mt-4">Clear filters</Link>
+          <p className="text-lg font-semibold">Tiada permainan dijumpai.</p>
+          <p className="mt-1 text-ink-muted">Cuba kata kunci atau kategori lain.</p>
+          <Link href="/games" className="btn-ghost mt-4">Kosongkan penapis</Link>
         </div>
       ) : (
         <>
           <p className="text-sm text-ink-muted" aria-live="polite">
-            {result.data.total} game{result.data.total === 1 ? "" : "s"}
+            {result.data.total} permainan
           </p>
           <GameGrid games={result.data.games} eagerCount={4} />
           {pages > 1 && (
-            <nav aria-label="Pagination" className="flex items-center justify-center gap-3 pt-2">
-              {page > 1 ? <Link className="btn-ghost" href={qs({ page: String(page - 1) })}>‹ Previous</Link> : <span />}
-              <span className="text-sm text-ink-muted">Page {page} / {pages}</span>
-              {page < pages ? <Link className="btn-ghost" href={qs({ page: String(page + 1) })}>Next ›</Link> : <span />}
+            <nav aria-label="Halaman" className="flex items-center justify-center gap-3 pt-2">
+              {page > 1 ? <Link className="btn-ghost" href={qs({ page: String(page - 1) })}>‹ Sebelumnya</Link> : <span />}
+              <span className="text-sm text-ink-muted">Halaman {page} / {pages}</span>
+              {page < pages ? <Link className="btn-ghost" href={qs({ page: String(page + 1) })}>Seterusnya ›</Link> : <span />}
             </nav>
           )}
         </>

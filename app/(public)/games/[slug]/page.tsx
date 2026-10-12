@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata(props: PageProps<"/games/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
   const res = await getPublishedGameBySlug(slug);
-  if (!res.ok || !res.data) return { title: "Game" };
+  if (!res.ok || !res.data) return { title: "Permainan" };
   return {
     title: res.data.title,
     description: res.data.description || undefined,
@@ -29,8 +29,8 @@ export default async function GamePage(props: PageProps<"/games/[slug]">) {
 
   return (
     <div className="space-y-6">
-      <nav aria-label="Breadcrumb" className="text-sm text-ink-muted">
-        <Link href="/games" className="hover:text-cyan-electric">Games</Link>
+      <nav aria-label="Laluan" className="text-sm text-ink-muted">
+        <Link href="/games" className="hover:text-cyan-electric">Permainan</Link>
         {game.category && (
           <>
             {" "}/{" "}
@@ -55,37 +55,37 @@ export default async function GamePage(props: PageProps<"/games/[slug]">) {
 
       <section className="glass grid gap-6 p-5 md:grid-cols-[2fr_1fr]" aria-labelledby="about-game">
         <div>
-          <h2 id="about-game" className="mb-2 text-lg font-bold">About this game</h2>
+          <h2 id="about-game" className="mb-2 text-lg font-bold">Tentang permainan ini</h2>
           <p className="whitespace-pre-line text-sm leading-relaxed text-white/85">
-            {game.full_description || game.description || "No description yet."}
+            {game.full_description || game.description || "Tiada penerangan lagi."}
           </p>
         </div>
         <dl className="grid grid-cols-2 gap-3 text-sm md:grid-cols-1">
           {game.category && (
             <div>
-              <dt className="text-ink-muted">Category</dt>
+              <dt className="text-ink-muted">Kategori</dt>
               <dd>{game.category.icon} {game.category.name}</dd>
             </div>
           )}
           {game.difficulty && (
             <div>
-              <dt className="text-ink-muted">Difficulty</dt>
+              <dt className="text-ink-muted">Tahap kesukaran</dt>
               <dd>{DIFFICULTY_LABEL[game.difficulty]}</dd>
             </div>
           )}
           {game.target_age && (
             <div>
-              <dt className="text-ink-muted">Age group</dt>
+              <dt className="text-ink-muted">Kumpulan umur</dt>
               <dd>{game.target_age}</dd>
             </div>
           )}
           <div>
-            <dt className="text-ink-muted">Mode</dt>
-            <dd>{game.launch_mode === "embedded" ? "Plays inside Playverse" : "Opens external website"}</dd>
+            <dt className="text-ink-muted">Mod</dt>
+            <dd>{game.launch_mode === "embedded" ? "Dimainkan dalam Playverse" : "Dibuka di laman luar"}</dd>
           </div>
           <div>
-            <dt className="text-ink-muted">Connection</dt>
-            <dd>{game.game_url.startsWith("/") ? "Built-in (works offline after first visit)" : "Internet required"}</dd>
+            <dt className="text-ink-muted">Sambungan</dt>
+            <dd>{game.game_url.startsWith("/") ? "Terbina dalam (boleh luar talian selepas lawatan pertama)" : "Perlukan internet"}</dd>
           </div>
           {game.tags.length > 0 && (
             <div className="col-span-2 md:col-span-1">

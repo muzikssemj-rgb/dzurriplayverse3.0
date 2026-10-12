@@ -23,7 +23,7 @@ export function SiteHeader() {
           <Link
             href="/me"
             className="grid size-11 place-items-center overflow-hidden rounded-full border-2 border-cyan-electric/60"
-            aria-label="My profile"
+            aria-label="Profil saya"
           >
             <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <circle cx="12" cy="8" r="4" />

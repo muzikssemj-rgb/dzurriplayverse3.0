@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getCreatorProfile } from "@/lib/data/public";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Creator" };
+export const metadata: Metadata = { title: "Pencipta" };
 
 export default async function CreatorPage() {
   const p = await getCreatorProfile();
@@ -19,7 +19,7 @@ export default async function CreatorPage() {
           className="mx-auto size-44 rounded-full border-4 border-cyan-electric/70 object-cover shadow-[0_0_40px_-6px_rgba(34,211,238,.8)]"
         />
         <div className="space-y-3 text-center md:text-left">
-          <p className="font-display text-xs font-bold tracking-[0.35em] text-gold">👑 A DZURRI ORIGINAL</p>
+          <p className="font-display text-xs font-bold tracking-[0.35em] text-gold">🎵 GAMIFIKASI DALAM PENDIDIKAN MUZIK</p>
           <h1 className="font-display text-3xl font-black tracking-wide">{p.name}</h1>
           {p.title && <p className="text-sm tracking-[0.2em] text-cyan-electric uppercase">{p.title}</p>}
           {p.bio && <p className="whitespace-pre-line text-white/85">{p.bio}</p>}
@@ -32,7 +32,7 @@ export default async function CreatorPage() {
         </blockquote>
       )}
       <div className="text-center">
-        <Link href="/games" className="btn-primary">Explore the Playverse ›</Link>
+        <Link href="/games" className="btn-primary">Teroka Playverse ›</Link>
       </div>
     </div>
   );

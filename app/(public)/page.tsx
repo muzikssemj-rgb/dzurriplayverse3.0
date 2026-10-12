@@ -32,21 +32,21 @@ export default async function HomePage() {
 
           {featured.ok && featured.data.games.length > 0 && (
             <section aria-labelledby="featured" className="scroll-mt-24">
-              <SectionHeader id="featured" title="Featured Games" icon="⭐" href="/games?featured=1" />
+              <SectionHeader id="featured" title="Permainan Pilihan" icon="⭐" href="/games?featured=1" />
               <GameRow games={featured.data.games} />
             </section>
           )}
 
           {popular.ok && popular.data.games.length > 0 && (
             <section aria-labelledby="popular">
-              <SectionHeader id="popular" title="Popular Games" icon="🔥" href="/games?sort=popular" />
+              <SectionHeader id="popular" title="Permainan Popular" icon="🔥" href="/games?sort=popular" />
               <GameRow games={popular.data.games} />
             </section>
           )}
 
           {cats.ok && cats.data.length > 0 && (
             <section aria-labelledby="worlds">
-              <SectionHeader id="worlds" title="Game Worlds" icon="🌍" href="/games" linkLabel="All games" />
+              <SectionHeader id="worlds" title="Dunia Permainan" icon="🌍" href="/games" linkLabel="Semua permainan" />
               <ul className="grid grid-cols-2 gap-3 min-[520px]:grid-cols-3 md:grid-cols-4 lg:grid-cols-8">
                 {cats.data.map((c, i) => (
                   <li key={c.id}>
@@ -59,7 +59,7 @@ export default async function HomePage() {
 
           {recent.ok && recent.data.games.length > 0 && (
             <section aria-labelledby="recent">
-              <SectionHeader id="recent" title="Recently Added" icon="🆕" href="/games?sort=recent" />
+              <SectionHeader id="recent" title="Baru Ditambah" icon="🆕" href="/games?sort=recent" />
               <GameRow games={recent.data.games} />
             </section>
           )}
@@ -68,12 +68,12 @@ export default async function HomePage() {
 
           {all.ok && (
             <section aria-labelledby="explore-all">
-              <SectionHeader id="explore-all" title="Explore All Games" icon="🎮" href="/games" />
+              <SectionHeader id="explore-all" title="Teroka Semua Permainan" icon="🎮" href="/games" />
               {all.data.games.length > 0 ? (
                 <GameGrid games={all.data.games} />
               ) : (
                 <p className="glass p-6 text-center text-ink-muted">
-                  No games have been published yet. New worlds are coming soon!
+                  Belum ada permainan diterbitkan. Dunia baharu akan tiba tidak lama lagi!
                 </p>
               )}
             </section>
@@ -86,7 +86,7 @@ export default async function HomePage() {
 
 function ExplorerBanner({ name, photo }: { name: string; photo: string | null }) {
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-white/10" aria-label="DZURRI PLAYVERSE motto">
+    <section className="relative overflow-hidden rounded-3xl border border-white/10" aria-label="Moto DZURRI PLAYVERSE">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/images/brand/explorer-banner.webp"
@@ -97,18 +97,18 @@ function ExplorerBanner({ name, photo }: { name: string; photo: string | null })
       <div className="absolute inset-0 bg-gradient-to-l from-space via-space/70 to-transparent" />
       <div className="relative ml-auto flex max-w-md flex-col items-end gap-2 p-6 text-right sm:p-10">
         <p className="font-display text-sm font-bold leading-relaxed tracking-[0.25em] text-white/90 sm:text-base">
-          MORE GAMES.
+          LEBIH BANYAK PERMAINAN.
           <br />
-          BRIGHTER MINDS.
-          <br />A BETTER TOMORROW.
+          MINDA LEBIH CERAH.
+          <br />MASA DEPAN LEBIH BAIK.
         </p>
-        <p className="text-xs tracking-[0.3em] text-gold">👑 A DZURRI ORIGINAL</p>
+        <p className="text-xs tracking-[0.3em] text-gold">🎵 GAMIFIKASI DALAM PENDIDIKAN MUZIK</p>
         <Link href="/creator" className="btn-ghost mt-2 !pl-1.5">
           {photo && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={photo} alt="" width={32} height={32} className="size-8 rounded-full border border-cyan-electric object-cover" />
           )}
-          Meet the creator — {name}
+          Kenali pencipta — {name}
         </Link>
       </div>
     </section>

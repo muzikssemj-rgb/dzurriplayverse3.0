@@ -4,7 +4,7 @@ export function SectionHeader({
   title,
   icon,
   href,
-  linkLabel = "See all",
+  linkLabel = "Lihat semua",
   id,
 }: {
   title: string;

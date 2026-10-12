@@ -13,11 +13,11 @@ import { SplashScreen } from "@/components/pwa/SplashScreen";
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3000"),
   title: {
-    default: "DZURRI PLAYVERSE — One Creator. Infinite Worlds.",
+    default: "DZURRI PLAYVERSE — Gamifikasi dalam Pendidikan Muzik",
     template: "%s · DZURRI PLAYVERSE",
   },
   description:
-    "DZURRI PLAYVERSE — platform permainan digital oleh Dzurri. Play. Learn. Explore. Discover new games, explore exciting worlds and experience a universe of digital adventures.",
+    "DZURRI PLAYVERSE — Gamifikasi dalam Pendidikan Muzik. Platform permainan digital oleh Dzurri: main, belajar dan teroka dunia muzik.",
   applicationName: "DZURRI PLAYVERSE",
   authors: [{ name: "Dzurri" }],
   creator: "Dzurri",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   formatDetection: { telephone: false },
   openGraph: {
     title: "DZURRI PLAYVERSE",
-    description: "One Creator. Infinite Worlds. — Play. Learn. Explore.",
+    description: "Gamifikasi dalam Pendidikan Muzik — Main. Belajar. Teroka.",
     images: [{ url: "/icons/icon-512.png", width: 512, height: 512 }],
     type: "website",
   },
@@ -50,13 +50,13 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="ms">
       <body>
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-gold focus:px-4 focus:py-2 focus:text-space"
         >
-          Skip to content
+          Langkau ke kandungan
         </a>
         <SplashScreen />
         {children}

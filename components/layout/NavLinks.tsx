@@ -4,11 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export const NAV_ITEMS = [
-  { href: "/", label: "Home", icon: "home" },
-  { href: "/games", label: "Games", icon: "grid" },
-  { href: "/favorites", label: "Favorites", icon: "star" },
-  { href: "/me", label: "Profile", icon: "user" },
-  { href: "/about", label: "About", icon: "info" },
+  { href: "/", label: "Utama", icon: "home" },
+  { href: "/games", label: "Permainan", icon: "grid" },
+  { href: "/favorites", label: "Kegemaran", icon: "star" },
+  { href: "/me", label: "Profil", icon: "user" },
+  { href: "/about", label: "Tentang", icon: "info" },
 ] as const;
 
 function isActive(path: string, href: string) {
@@ -18,7 +18,7 @@ function isActive(path: string, href: string) {
 export function DesktopNav() {
   const path = usePathname();
   return (
-    <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
+    <nav aria-label="Menu utama" className="hidden items-center gap-1 lg:flex">
       {NAV_ITEMS.map((item) => (
         <Link
           key={item.href}
@@ -39,7 +39,7 @@ export function BottomNav() {
   const path = usePathname();
   return (
     <nav
-      aria-label="Bottom navigation"
+      aria-label="Navigasi bawah"
       className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-space/95 backdrop-blur-md lg:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >

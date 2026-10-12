@@ -40,8 +40,8 @@ export function SavedGamesList({ kind, emptyText }: { kind: "favorites" | "recen
     };
   }, [idsJson]);
 
-  if (error) return <p className="glass p-5 text-sm text-ink-muted">Could not load your games. Check your internet connection.</p>;
-  if (!games) return <p className="text-sm text-ink-muted" role="status">Loading…</p>;
+  if (error) return <p className="glass p-5 text-sm text-ink-muted">Permainan anda tidak dapat dimuatkan. Semak sambungan internet.</p>;
+  if (!games) return <p className="text-sm text-ink-muted" role="status">Memuatkan…</p>;
   if (games.length === 0) return <p className="glass p-6 text-center text-ink-muted">{emptyText}</p>;
 
   return (
@@ -54,10 +54,10 @@ export function SavedGamesList({ kind, emptyText }: { kind: "favorites" | "recen
               <Link href={`/games/${g.slug}`} className="block truncate font-semibold hover:text-cyan-electric">
                 {g.title}
               </Link>
-              <p className="truncate text-xs text-ink-muted">{g.category?.name ?? "Game"}</p>
+              <p className="truncate text-xs text-ink-muted">{g.category?.name ?? "Permainan"}</p>
             </div>
             <FavoriteButton gameId={g.id} title={g.title} />
-            <Link href={`/games/${g.slug}`} className="btn-cyan !min-h-10 !px-3" aria-label={`Play ${g.title}`}>
+            <Link href={`/games/${g.slug}`} className="btn-cyan !min-h-10 !px-3" aria-label={`Main ${g.title}`}>
               ▶
             </Link>
           </li>
@@ -65,7 +65,7 @@ export function SavedGamesList({ kind, emptyText }: { kind: "favorites" | "recen
       </ul>
       {kind === "recent" && (
         <button className="btn-ghost" onClick={() => clearRecent()}>
-          Clear history
+          Padam sejarah
         </button>
       )}
     </div>

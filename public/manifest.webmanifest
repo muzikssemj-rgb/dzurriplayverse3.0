@@ -2,8 +2,8 @@
   "id": "/",
   "name": "DZURRI PLAYVERSE",
   "short_name": "DZURRI",
-  "description": "One Creator. Infinite Worlds. — Play. Learn. Explore. Platform permainan digital oleh Dzurri.",
-  "lang": "en",
+  "description": "Gamifikasi dalam Pendidikan Muzik — Main. Belajar. Teroka. Platform permainan digital oleh Dzurri.",
+  "lang": "ms",
   "dir": "ltr",
   "start_url": "/?source=pwa",
   "scope": "/",
@@ -92,8 +92,8 @@
   ],
   "shortcuts": [
     {
-      "name": "Explore Games",
-      "short_name": "Games",
+      "name": "Teroka Permainan",
+      "short_name": "Permainan",
       "url": "/games?source=pwa-shortcut",
       "icons": [
         {
@@ -103,8 +103,8 @@
       ]
     },
     {
-      "name": "Favorites",
-      "short_name": "Favorites",
+      "name": "Kegemaran",
+      "short_name": "Kegemaran",
       "url": "/favorites?source=pwa-shortcut",
       "icons": [
         {
@@ -120,14 +120,14 @@
       "sizes": "1280x720",
       "type": "image/webp",
       "form_factor": "wide",
-      "label": "DZURRI PLAYVERSE — Home"
+      "label": "DZURRI PLAYVERSE — Laman utama"
     },
     {
       "src": "/screenshots/home-narrow.webp",
       "sizes": "780x1688",
       "type": "image/webp",
       "form_factor": "narrow",
-      "label": "DZURRI PLAYVERSE on mobile"
+      "label": "DZURRI PLAYVERSE di telefon"
     }
   ]
 }

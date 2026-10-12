@@ -1,13 +1,13 @@
 /** Data awal — dimasukkan secara automatik kali pertama aplikasi membaca pangkalan data kosong. */
 export const SEED_CATEGORIES = [
-  { slug: "music-world", name: "Music World", description: "Rentak, irama dan teori muzik.", icon: "🎵", image_url: "/images/worlds/music-world.webp", display_order: 10 },
-  { slug: "adventure-world", name: "Adventure World", description: "Teroka dunia dan selesaikan misi.", icon: "🚀", image_url: "/images/worlds/adventure-world.webp", display_order: 20 },
-  { slug: "quiz-world", name: "Quiz World", description: "Uji pengetahuan dan cabar minda.", icon: "🧠", image_url: "/images/worlds/quiz-world.webp", display_order: 30 },
-  { slug: "arcade-world", name: "Arcade World", description: "Aksi pantas, refleks dan skor tinggi.", icon: "🕹️", image_url: "/images/worlds/arcade-world.webp", display_order: 40 },
-  { slug: "puzzle-world", name: "Puzzle World", description: "Teka-teki, logik dan ingatan.", icon: "🧩", image_url: null, display_order: 50 },
-  { slug: "ar-vr-world", name: "AR & VR World", description: "Pengalaman realiti terimbuh dan maya.", icon: "🥽", image_url: null, display_order: 60 },
-  { slug: "educational-games", name: "Educational Games", description: "Permainan pembelajaran untuk bilik darjah.", icon: "🎓", image_url: null, display_order: 70 },
-  { slug: "other-games", name: "Other Games", description: "Permainan lain dalam Playverse.", icon: "✨", image_url: null, display_order: 80 },
+  { slug: "music-world", name: "Dunia Muzik", description: "Rentak, irama dan teori muzik.", icon: "🎵", image_url: "/images/worlds/music-world.webp", display_order: 10 },
+  { slug: "adventure-world", name: "Dunia Pengembaraan", description: "Teroka dunia dan selesaikan misi.", icon: "🚀", image_url: "/images/worlds/adventure-world.webp", display_order: 20 },
+  { slug: "quiz-world", name: "Dunia Kuiz", description: "Uji pengetahuan dan cabar minda.", icon: "🧠", image_url: "/images/worlds/quiz-world.webp", display_order: 30 },
+  { slug: "arcade-world", name: "Dunia Arked", description: "Aksi pantas, refleks dan skor tinggi.", icon: "🕹️", image_url: "/images/worlds/arcade-world.webp", display_order: 40 },
+  { slug: "puzzle-world", name: "Dunia Teka-teki", description: "Teka-teki, logik dan ingatan.", icon: "🧩", image_url: null, display_order: 50 },
+  { slug: "ar-vr-world", name: "Dunia AR & VR", description: "Pengalaman realiti terimbuh dan maya.", icon: "🥽", image_url: null, display_order: 60 },
+  { slug: "educational-games", name: "Permainan Pendidikan", description: "Permainan pembelajaran untuk bilik darjah.", icon: "🎓", image_url: null, display_order: 70 },
+  { slug: "other-games", name: "Permainan Lain", description: "Permainan lain dalam Playverse.", icon: "✨", image_url: null, display_order: 80 },
 ] as const;
 
 export const SEED_GAMES = [

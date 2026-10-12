@@ -30,7 +30,7 @@ export function SearchButton() {
         type="button"
         onClick={() => setOpen(true)}
         className="grid size-11 place-items-center rounded-full border border-white/10 bg-white/5 hover:bg-white/10"
-        aria-label="Search games"
+        aria-label="Cari permainan"
       >
         <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <circle cx="11" cy="11" r="7" />
@@ -41,7 +41,7 @@ export function SearchButton() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Search games"
+          aria-label="Cari permainan"
           className="fixed inset-0 z-[110] flex items-start justify-center bg-black/70 p-4 pt-[12vh]"
           onClick={(e) => e.target === e.currentTarget && setOpen(false)}
           onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
@@ -55,20 +55,20 @@ export function SearchButton() {
             }}
           >
             <label htmlFor="global-search" className="sr-only">
-              Search by game name, category or tag
+              Cari mengikut nama permainan, kategori atau tag
             </label>
             <input
               ref={inputRef}
               id="global-search"
               className="input flex-1"
-              placeholder="Search games, categories or tags…"
+              placeholder="Cari permainan, kategori atau tag…"
               value={q}
               maxLength={60}
               onChange={(e) => setQ(e.target.value)}
               enterKeyHint="search"
             />
             <button className="btn-cyan" type="submit">
-              Search
+              Cari
             </button>
           </form>
         </div>

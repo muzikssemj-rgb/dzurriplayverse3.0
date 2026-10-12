@@ -32,7 +32,7 @@ export function SplashScreen() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/icons/icon-192.png" alt="" width={112} height={112} className="animate-float rounded-3xl" />
       <p className="font-display text-xl font-black tracking-widest text-gradient">DZURRI PLAYVERSE</p>
-      <p className="text-xs tracking-[0.3em] text-ink-muted">A DZURRI ORIGINAL</p>
+      <p className="text-xs tracking-[0.3em] text-ink-muted">GAMIFIKASI DALAM PENDIDIKAN MUZIK</p>
     </div>
   );
 }

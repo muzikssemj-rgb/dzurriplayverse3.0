@@ -70,7 +70,7 @@ export function ServiceWorkerRegister() {
           role="status"
           className="fixed inset-x-0 top-0 z-[90] bg-gold px-4 py-1.5 text-center text-xs font-semibold text-space"
         >
-          You are offline. Showing saved content — external games and the latest game list need an internet connection.
+          Anda di luar talian. Kandungan tersimpan dipaparkan — permainan luaran dan senarai terkini memerlukan internet.
         </div>
       )}
       {waiting && (
@@ -78,9 +78,9 @@ export function ServiceWorkerRegister() {
           role="alert"
           className="glass neon-border fixed bottom-24 left-1/2 z-[95] flex w-[min(92vw,420px)] -translate-x-1/2 items-center gap-3 p-3 md:bottom-6"
         >
-          <p className="flex-1 text-sm">A new version of DZURRI PLAYVERSE is available.</p>
+          <p className="flex-1 text-sm">Versi baharu DZURRI PLAYVERSE tersedia.</p>
           <button className="btn-cyan" onClick={() => waiting.postMessage({ type: "SKIP_WAITING" })}>
-            Reload
+            Muat Semula
           </button>
         </div>
       )}

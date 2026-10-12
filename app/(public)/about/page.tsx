@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LogoMark } from "@/components/layout/Logo";
 
-export const metadata: Metadata = { title: "About" };
+export const metadata: Metadata = { title: "Tentang" };
 
 const PALETTE = [
   { name: "Cosmic Blue", hex: "#0EA5E9", use: "Teknologi utama" },
@@ -21,20 +21,20 @@ export default function AboutPage() {
         <h1 className="font-display text-3xl font-black tracking-wide sm:text-4xl">
           <span className="text-gradient">DZURRI</span> <span className="text-gold-gradient">PLAYVERSE</span>
         </h1>
-        <p className="font-display text-sm font-bold tracking-[0.3em] text-cyan-electric">ONE CREATOR. INFINITE WORLDS.</p>
+        <p className="font-display text-sm font-bold tracking-[0.3em] text-cyan-electric">SATU PENCIPTA. DUNIA TANPA BATAS.</p>
         <p className="max-w-2xl text-white/85">
           DZURRI PLAYVERSE ialah alam permainan digital yang menghimpunkan pelbagai jenis permainan dalam satu tempat. Setiap
           permainan mempunyai dunia, kategori dan pengalaman tersendiri — semuanya dikurasi dan diurus oleh Dzurri melalui satu
           platform pusat.
         </p>
-        <p className="text-sm text-ink-muted">Play. Learn. Explore.</p>
+        <p className="text-sm text-ink-muted">Main. Belajar. Teroka.</p>
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
         {[
-          ["🎮", "Play", "Permainan muzik, kuiz, arked, teka-teki dan banyak lagi — terus dari pelayar."],
-          ["📚", "Learn", "Permainan pendidikan yang menggabungkan teknologi, kreativiti dan pembelajaran."],
-          ["🌌", "Explore", "Teroka dunia-dunia permainan baharu yang ditambah dari semasa ke semasa."],
+          ["🎮", "Main", "Permainan muzik, kuiz, arked, teka-teki dan banyak lagi — terus dari pelayar."],
+          ["📚", "Belajar", "Permainan pendidikan yang menggabungkan teknologi, kreativiti dan pembelajaran."],
+          ["🌌", "Teroka", "Teroka dunia-dunia permainan baharu yang ditambah dari semasa ke semasa."],
         ].map(([icon, title, body]) => (
           <div key={title} className="glass p-5">
             <p className="text-3xl" aria-hidden="true">{icon}</p>
@@ -61,7 +61,7 @@ export default function AboutPage() {
       </section>
 
       <section className="glass p-5 text-sm text-white/85">
-        <h2 className="mb-2 font-bold">Privacy</h2>
+        <h2 className="mb-2 font-bold">Privasi</h2>
         <p>
           Pemain tidak perlu mendaftar. Kegemaran dan sejarah permainan disimpan dalam pelayar anda sahaja. Platform hanya
           merekod statistik tanpa nama — bilangan lawatan, jenis peranti, waktu lawatan dan sesi main — tanpa nama, e-mel,
@@ -69,7 +69,7 @@ export default function AboutPage() {
           Permainan luaran tertakluk kepada polisi laman masing-masing.
         </p>
         <p className="mt-3">
-          <Link href="/creator" className="text-cyan-electric underline">Meet the creator →</Link>
+          <Link href="/creator" className="text-cyan-electric underline">Kenali pencipta →</Link>
         </p>
       </section>
     </div>

@@ -143,20 +143,20 @@ export function GameLauncher({ game, preview = false }: { game: LauncherGame; pr
   const toolbar = (
     <div className="flex flex-wrap gap-2">
       <Link href={preview ? "/admin/games" : "/games"} className="btn-ghost">
-        ‹ {preview ? "Back to Admin" : "Back to Games"}
+        ‹ {preview ? "Kembali ke Admin" : "Kembali ke Permainan"}
       </Link>
       {game.launch_mode === "embedded" && phase !== "blocked" && (
         <button type="button" className="btn-ghost" onClick={reload}>
-          ↻ Reload Game
+          ↻ Muat Semula
         </button>
       )}
       {game.launch_mode === "embedded" && phase !== "blocked" && phase !== "offline" && (
         <button type="button" className="btn-primary order-first" onClick={enterFullscreen}>
-          ⛶ Play Fullscreen
+          ⛶ Main Skrin Penuh
         </button>
       )}
       <a href={openHref} target="_blank" rel="noopener noreferrer" className="btn-ghost">
-        ↗ Open in New Tab
+        ↗ Buka di Tab Baharu
       </a>
       {!preview && <ReportDialog gameId={game.id} />}
     </div>
@@ -167,13 +167,13 @@ export function GameLauncher({ game, preview = false }: { game: LauncherGame; pr
       <div className="space-y-4">
         <div className="glass neon-border flex flex-col items-center gap-4 p-8 text-center">
           <span className="text-5xl" aria-hidden="true">🚀</span>
-          <h2 className="text-xl font-bold">This game opens on an external website</h2>
+          <h2 className="text-xl font-bold">Permainan ini dibuka di laman web luar</h2>
           <p className="max-w-md text-sm text-ink-muted">
-            You are about to leave DZURRI PLAYVERSE and open <strong className="text-white">{hostOf(openHref)}</strong> in a new
-            tab. An internet connection is required.
+            Anda akan meninggalkan DZURRI PLAYVERSE dan membuka <strong className="text-white">{hostOf(openHref)}</strong> di tab
+            baharu. Sambungan internet diperlukan.
           </p>
           <a href={openHref} target="_blank" rel="noopener noreferrer" className="btn-primary">
-            ▶ Open Game
+            ▶ Buka Permainan
           </a>
         </div>
         {toolbar}
@@ -198,7 +198,7 @@ export function GameLauncher({ game, preview = false }: { game: LauncherGame; pr
             onClick={() => setImmersive(false)}
             className="absolute right-2 z-20 grid size-11 place-items-center rounded-full bg-black/60 text-lg text-white ring-1 ring-white/30 backdrop-blur hover:bg-black/80"
             style={{ top: "calc(env(safe-area-inset-top) + 8px)" }}
-            aria-label="Exit fullscreen"
+            aria-label="Keluar skrin penuh"
           >
             ✕
           </button>
@@ -223,23 +223,23 @@ export function GameLauncher({ game, preview = false }: { game: LauncherGame; pr
           <div className="absolute inset-0 grid place-items-center bg-space/90" role="status" aria-live="polite">
             <div className="flex flex-col items-center gap-3">
               <span className="size-12 animate-spin rounded-full border-4 border-cyan-electric/30 border-t-cyan-electric" />
-              <p className="text-sm text-ink-muted">{phase === "checking" ? "Preparing game…" : "Loading game…"}</p>
+              <p className="text-sm text-ink-muted">{phase === "checking" ? "Menyediakan permainan…" : "Memuatkan permainan…"}</p>
             </div>
           </div>
         )}
 
         {phase === "slow" && (
           <div className="absolute inset-x-3 bottom-3 rounded-xl bg-space/95 p-3 text-sm shadow-lg" role="status">
-            The game is taking a while to load. If the screen stays blank, try <button className="underline" onClick={reload}>reloading</button>{" "}
-            or <a className="underline" href={openHref} target="_blank" rel="noopener noreferrer">open it in a new tab</a>.
+            Permainan mengambil masa untuk dimuatkan. Jika skrin kekal kosong, cuba <button className="underline" onClick={reload}>muat semula</button>{" "}
+            atau <a className="underline" href={openHref} target="_blank" rel="noopener noreferrer">buka di tab baharu</a>.
           </div>
         )}
 
         {phase === "blocked" && (
           <Overlay
             icon="🛡️"
-            title="This game can't be shown inside DZURRI PLAYVERSE"
-            body={`The game's website does not allow embedding${blockReason ? ` (${blockReason})` : ""}. You can still play it in a new tab.`}
+            title="Permainan ini tidak boleh dipaparkan dalam DZURRI PLAYVERSE"
+            body={`Laman permainan ini tidak membenarkan paparan terbenam${blockReason ? ` (${blockReason})` : ""}. Anda masih boleh bermain di tab baharu.`}
             href={openHref}
           />
         )}
@@ -247,8 +247,8 @@ export function GameLauncher({ game, preview = false }: { game: LauncherGame; pr
         {phase === "offline" && (
           <Overlay
             icon="📡"
-            title="You're offline"
-            body="This game is hosted online and needs an internet connection. Reconnect and press Reload."
+            title="Anda di luar talian"
+            body="Permainan ini berada dalam talian dan memerlukan internet. Sambung semula dan tekan Muat Semula."
             onRetry={reload}
           />
         )}
@@ -267,12 +267,12 @@ function Overlay({ icon, title, body, href, onRetry }: { icon: string; title: st
         <p className="text-sm text-ink-muted">{body}</p>
         {href && (
           <a href={href} target="_blank" rel="noopener noreferrer" className="btn-primary">
-            ↗ Open Game in New Tab
+            ↗ Buka Permainan di Tab Baharu
           </a>
         )}
         {onRetry && (
           <button className="btn-cyan" onClick={onRetry}>
-            ↻ Try again
+            ↻ Cuba lagi
           </button>
         )}
       </div>
@@ -284,6 +284,6 @@ function hostOf(url: string) {
   try {
     return new URL(url).host;
   } catch {
-    return "the game website";
+    return "laman permainan";
   }
 }

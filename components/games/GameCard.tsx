@@ -18,17 +18,17 @@ export function GameCard({ game, eager = false }: { game: PublicGame; eager?: bo
       <div className="relative aspect-[16/10] overflow-hidden">
         <GameThumb
           src={game.thumbnail_url}
-          alt={`${game.title} thumbnail`}
+          alt={`Gambar kecil ${game.title}`}
           icon={game.category?.icon}
           eager={eager}
           className="size-full transition duration-500 group-hover:scale-105"
         />
         <div className="absolute left-2 top-2 flex gap-1.5">
           {game.is_featured && (
-            <span className="rounded-full bg-gold px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-space">Featured</span>
+            <span className="rounded-full bg-gold px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-space">Pilihan</span>
           )}
           {isNew && (
-            <span className="rounded-full bg-cyan-electric px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-space">New</span>
+            <span className="rounded-full bg-cyan-electric px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-space">Baharu</span>
           )}
         </div>
         <FavoriteButton gameId={game.id} title={game.title} className="absolute right-2 top-2 z-10" />
@@ -56,7 +56,7 @@ export function GameCard({ game, eager = false }: { game: PublicGame; eager?: bo
           ))}
         </div>
         <span className="btn-cyan pointer-events-none mt-2 !min-h-10 w-full" aria-hidden="true">
-          ▶ Play Now
+          ▶ Main Sekarang
         </span>
       </div>
     </article>

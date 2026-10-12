@@ -3,10 +3,10 @@
 import { useState } from "react";
 
 const REASONS = [
-  { value: "not_loading", label: "Game does not load" },
-  { value: "blocked_embed", label: "Blocked / refused to connect" },
-  { value: "wrong_content", label: "Wrong or inappropriate content" },
-  { value: "other", label: "Other" },
+  { value: "not_loading", label: "Permainan tidak dapat dimuatkan" },
+  { value: "blocked_embed", label: "Disekat / enggan bersambung" },
+  { value: "wrong_content", label: "Kandungan salah atau tidak sesuai" },
+  { value: "other", label: "Lain-lain" },
 ];
 
 export function ReportDialog({ gameId, disabled }: { gameId: string; disabled?: boolean }) {
@@ -27,19 +27,19 @@ export function ReportDialog({ gameId, disabled }: { gameId: string; disabled?: 
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
-        throw new Error(j.error || "Report could not be sent.");
+        throw new Error(j.error || "Laporan tidak dapat dihantar.");
       }
       setState("sent");
     } catch (err) {
       setState("error");
-      setError(err instanceof Error ? err.message : "Report could not be sent.");
+      setError(err instanceof Error ? err.message : "Laporan tidak dapat dihantar.");
     }
   }
 
   return (
     <>
       <button type="button" className="btn-ghost" onClick={() => setOpen(true)} disabled={disabled} aria-haspopup="dialog">
-        ⚑ Report a Broken Link
+        ⚑ Laporkan Pautan Rosak
       </button>
       {open && (
         <div
@@ -51,16 +51,16 @@ export function ReportDialog({ gameId, disabled }: { gameId: string; disabled?: 
           onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
         >
           <div className="glass neon-border w-full max-w-md p-5">
-            <h2 id="report-title" className="mb-3 text-lg font-bold">Report a broken link</h2>
+            <h2 id="report-title" className="mb-3 text-lg font-bold">Laporkan pautan rosak</h2>
             {state === "sent" ? (
               <div className="space-y-4">
-                <p className="text-sm text-emerald-300" role="status">Thank you! The report has been sent to the creator.</p>
-                <button className="btn-cyan w-full" onClick={() => setOpen(false)} autoFocus>Close</button>
+                <p className="text-sm text-emerald-300" role="status">Terima kasih! Laporan telah dihantar kepada pencipta.</p>
+                <button className="btn-cyan w-full" onClick={() => setOpen(false)} autoFocus>Tutup</button>
               </div>
             ) : (
               <form onSubmit={submit} className="space-y-3">
                 <fieldset className="space-y-2">
-                  <legend className="label">What went wrong?</legend>
+                  <legend className="label">Apakah masalahnya?</legend>
                   {REASONS.map((r, i) => (
                     <label key={r.value} className="flex min-h-11 items-center gap-3 rounded-xl border border-white/10 px-3 text-sm">
                       <input type="radio" name="reason" value={r.value} defaultChecked={i === 0} required autoFocus={i === 0} />
@@ -69,14 +69,14 @@ export function ReportDialog({ gameId, disabled }: { gameId: string; disabled?: 
                   ))}
                 </fieldset>
                 <div>
-                  <label htmlFor="report-msg" className="label">Details (optional)</label>
+                  <label htmlFor="report-msg" className="label">Butiran (pilihan)</label>
                   <textarea id="report-msg" name="message" maxLength={500} rows={3} className="input" />
                 </div>
                 {state === "error" && <p className="field-error" role="alert">{error}</p>}
                 <div className="flex gap-2">
-                  <button type="button" className="btn-ghost flex-1" onClick={() => setOpen(false)}>Cancel</button>
+                  <button type="button" className="btn-ghost flex-1" onClick={() => setOpen(false)}>Batal</button>
                   <button type="submit" className="btn-cyan flex-1" disabled={state === "sending"}>
-                    {state === "sending" ? "Sending…" : "Send report"}
+                    {state === "sending" ? "Menghantar…" : "Hantar laporan"}
                   </button>
                 </div>
               </form>

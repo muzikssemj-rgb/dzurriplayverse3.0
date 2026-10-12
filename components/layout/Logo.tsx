@@ -45,13 +45,13 @@ export function LogoMark({ size = 40, className = "" }: { size?: number; classNa
 
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
-    <Link href="/" className="flex items-center gap-2.5 rounded-xl" aria-label="DZURRI PLAYVERSE — Home">
+    <Link href="/" className="flex items-center gap-2.5 rounded-xl" aria-label="DZURRI PLAYVERSE — Laman Utama">
       <LogoMark size={compact ? 36 : 44} />
       <span className="leading-tight">
         <span className="block whitespace-nowrap font-display text-[13px] font-black tracking-wider text-gradient min-[400px]:text-[15px] sm:text-base">
           DZURRI PLAYVERSE
         </span>
-        <span className="block whitespace-nowrap text-[9px] font-medium tracking-[0.24em] text-ink-muted sm:text-[10px]">A DZURRI ORIGINAL</span>
+        <span className="block whitespace-nowrap text-[8.5px] font-medium tracking-[0.06em] text-ink-muted min-[400px]:text-[9px] sm:text-[10px] sm:tracking-[0.12em]">GAMIFIKASI DALAM PENDIDIKAN MUZIK</span>
       </span>
     </Link>
   );

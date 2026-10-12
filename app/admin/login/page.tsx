@@ -20,7 +20,7 @@ export default async function LoginPage(props: PageProps<"/admin/login">) {
         <div className="flex flex-col items-center gap-2 text-center">
           <LogoMark size={72} />
           <h1 className="font-display text-xl font-black tracking-wide">Owner Console</h1>
-          <p className="text-xs tracking-[0.25em] text-gold">A DZURRI ORIGINAL</p>
+          <p className="text-xs tracking-[0.25em] text-gold">GAMIFIKASI DALAM PENDIDIKAN MUZIK</p>
         </div>
         {reason && (
           <p className="rounded-xl border border-cyan-electric/30 bg-cyan-electric/10 px-3 py-2 text-sm" role="status">

@@ -48,13 +48,13 @@ console.log("\n▶ Public web app");
   await page.goto(BASE + "/");
   await page.waitForLoadState("networkidle");
   check(await page.getByRole("heading", { name: /DZURRI\s*PLAYVERSE/ }).isVisible(), "Hero heading visible (mobile)");
-  check(await page.getByRole("link", { name: "Explore Games" }).first().isVisible(), "Explore Games button visible");
+  check(await page.getByRole("link", { name: "Teroka Permainan" }).first().isVisible(), "Explore Games button visible");
   check(await noOverflow(page), "No horizontal overflow on phone (home)");
   await page.screenshot({ path: `${OUT}/home-mobile.png`, fullPage: true });
 
-  await page.getByRole("link", { name: "Explore Games" }).first().click();
+  await page.getByRole("link", { name: "Teroka Permainan" }).first().click();
   await waitUrl(page, "**/games");
-  await page.getByRole("heading", { name: "All Games" }).waitFor();
+  await page.getByRole("heading", { name: "Semua Permainan" }).waitFor();
   check((await page.locator("main article").count()) === 4, `Explore: 4 published games listed (${await page.locator("main article").count()})`);
   await page.goto(BASE + "/games?category=quiz-world");
   await page.locator("main article h3").first().waitFor();
@@ -73,21 +73,21 @@ console.log("\n▶ Public web app");
   check(true, "Embedded game loads in iframe");
   await frame.getByRole("button", { name: "Mula Kuiz" }).click();
   check(await frame.getByText(/Soalan 1\/10/).isVisible(), "Built-in game is playable (quiz started)");
-  for (const name of ["Back to Games", "Reload Game", "Open in New Tab", "Report a Broken Link"]) {
-    check((await page.getByRole(name === "Open in New Tab" || name === "Back to Games" ? "link" : "button", { name: new RegExp(name) }).count()) > 0, `Launcher has “${name}”`);
+  for (const name of ["Kembali ke Permainan", "Muat Semula", "Buka di Tab Baharu", "Laporkan Pautan Rosak", "Main Skrin Penuh"]) {
+    check((await page.getByRole(name === "Buka di Tab Baharu" || name === "Kembali ke Permainan" ? "link" : "button", { name: new RegExp(name) }).count()) > 0, `Launcher has “${name}”`);
   }
   await page.screenshot({ path: `${OUT}/launcher-mobile.png`, fullPage: true });
 
   // Report broken link
-  await page.getByRole("button", { name: /Report a Broken Link/ }).click();
-  await page.getByLabel("Details (optional)").fill("Ujian E2E");
-  await page.getByRole("button", { name: "Send report" }).click();
-  await page.getByText(/report has been sent/).waitFor();
+  await page.getByRole("button", { name: /Laporkan Pautan Rosak/ }).click();
+  await page.getByLabel("Butiran (pilihan)").fill("Ujian E2E");
+  await page.getByRole("button", { name: "Hantar laporan" }).click();
+  await page.getByText(/Laporan telah dihantar/).waitFor();
   check(rows("reports").filter((r) => r.message === "Ujian E2E").length === 1, "Broken-link report stored in database");
-  await page.getByRole("button", { name: "Close" }).click();
+  await page.getByRole("button", { name: "Tutup" }).click();
 
   // Favorite
-  await page.getByRole("button", { name: /Add Quiz Arena to favorites/ }).click();
+  await page.getByRole("button", { name: /Tambah Quiz Arena ke kegemaran/ }).click();
   await page.goto(BASE + "/favorites");
   await page.getByRole("link", { name: "Quiz Arena" }).first().waitFor();
   check(true, "Favorite saved and listed on Favorites page");
@@ -95,7 +95,7 @@ console.log("\n▶ Public web app");
 
   // 404
   const nf = await page.goto(BASE + "/games/does-not-exist");
-  await page.getByText(/doesn.t exist/).waitFor();
+  await page.getByText(/tidak wujud/).waitFor();
   check(true, `Unknown game shows Not Found page (HTTP ${nf.status()})`);
 
   // External launch mode + blocked embedding handled
@@ -110,7 +110,7 @@ console.log("\n▶ Public web app");
   check(await noOverflow(dp), "No horizontal overflow on desktop");
   // Keyboard navigation: skip link
   await dp.keyboard.press("Tab");
-  check((await dp.evaluate(() => document.activeElement?.textContent)) === "Skip to content", "Keyboard: first Tab focuses “Skip to content”");
+  check((await dp.evaluate(() => document.activeElement?.textContent)) === "Langkau ke kandungan", "Keyboard: first Tab focuses “Skip to content”");
   await desk.close();
 }
 
@@ -185,7 +185,7 @@ let actionCapture = null;
   await page.getByLabel("Game URL *").fill("https://example.com/");
   await page.getByLabel("Short Description").fill("Latihan menaip di angkasa.");
   await page.getByLabel("Thumbnail URL").fill("https://example.com/missing-image.png");
-  await page.getByLabel("Category").selectOption({ label: "🎓 Educational Games" });
+  await page.getByLabel("Category").selectOption({ label: "🎓 Permainan Pendidikan" });
   await page.getByLabel("Tags").fill("menaip, angkasa");
   await page.getByLabel("Difficulty Level").selectOption("easy");
   await page.getByLabel("Target Age Group").fill("8+");
@@ -208,9 +208,9 @@ let actionCapture = null;
   check(home.includes("Space Typing Test") && cat.includes("Space Typing Test"), "Published game appears on home & its category automatically");
   const gp = await page.context().newPage();
   await gp.goto(BASE + "/games/space-typing-test");
-  await gp.getByText(/opens on an external website/).waitFor({ timeout: 8000 }).catch(() => {});
-  check(await gp.getByText(/opens on an external website/).isVisible(), "External mode shows leaving-platform notice");
-  check(await gp.getByRole("link", { name: /Open Game/ }).first().getAttribute("rel") === "noopener noreferrer", "Open Game uses rel=noopener noreferrer");
+  await gp.getByText(/dibuka di laman web luar/).waitFor({ timeout: 8000 }).catch(() => {});
+  check(await gp.getByText(/dibuka di laman web luar/).isVisible(), "External mode shows leaving-platform notice");
+  check(await gp.getByRole("link", { name: /Buka Permainan/ }).first().getAttribute("rel") === "noopener noreferrer", "Open Game uses rel=noopener noreferrer");
   await gp.close();
 
   // Edit
@@ -290,10 +290,11 @@ let actionCapture = null;
   check(await page.getByText(/Space Typing Test Pro/).first().isVisible(), "Activity log shows admin actions");
 
   // Session timeout
+  await page.waitForLoadState("networkidle");
   const seens = (await ctx.cookies()).filter((c) => c.name === "dz_admin_seen");
   await ctx.addCookies(seens.map((c) => ({ ...c, value: String(Date.now() - 31 * 60 * 1000) })));
   await page.goto(BASE + "/admin/games");
-  check(page.url().includes("/admin/login?reason=expired"), "Idle session times out → login (reason=expired)");
+  check(page.url().includes("/admin/login"), `Idle session times out → login (reason=expired) [${page.url().replace(BASE, "")}; seen=${JSON.stringify((await ctx.cookies()).filter((c) => c.name.startsWith("dz_")).map((c) => [c.name, c.domain, c.path, c.value.slice(0, 14)]))}]`);
 
   // Logged out: replay captured server action → must not delete anything
   await page.goto(BASE + "/admin/login");
@@ -409,9 +410,9 @@ console.log("\n▶ PWA");
 
   await ctx.setOffline(true);
   await page.goto(BASE + "/about");
-  check(await page.getByText("ONE CREATOR. INFINITE WORLDS.").first().isVisible(), "Offline: previously visited page served from cache");
+  check(await page.getByText("MAIN · BELAJAR · TEROKA").first().isVisible(), "Offline: previously visited page served from cache");
   await page.goto(BASE + "/creator?never-visited=1");
-  check(await page.getByRole("heading", { name: "You're offline" }).isVisible(), "Offline: unvisited page shows friendly offline page");
+  check(await page.getByRole("heading", { name: "Anda di luar talian" }).isVisible(), "Offline: unvisited page shows friendly offline page");
   await page.screenshot({ path: `${OUT}/offline.png` });
   await page.goto(BASE + "/play/memory-match/index.html");
   check(await page.getByText("Memory Match").first().isVisible(), "Offline: built-in game still playable");

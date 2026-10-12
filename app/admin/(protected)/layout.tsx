@@ -41,7 +41,7 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
       </aside>
       <main id="main" className="min-w-0 p-4 sm:p-6 lg:p-8">
         {children}
-        <p className="mt-12 text-center text-[11px] tracking-[0.3em] text-ink-muted">👑 A DZURRI ORIGINAL · OWNER ONLY</p>
+        <p className="mt-12 text-center text-[11px] tracking-[0.3em] text-ink-muted">🎵 GAMIFIKASI DALAM PENDIDIKAN MUZIK · PEMILIK SAHAJA</p>
       </main>
     </div>
   );
