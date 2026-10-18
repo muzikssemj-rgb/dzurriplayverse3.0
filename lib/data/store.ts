@@ -368,7 +368,7 @@ export async function listReports(status: "open" | "resolved" | "all" = "open"):
 }
 
 // ------------------------------------------------------------------ admin writes
-export async function logActivity(action: string, entity_type: "game" | "category" | "profile", entity_id: string | null, summary: string | null) {
+export async function logActivity(action: string, entity_type: "game" | "category" | "profile" | "subject" | "video" | "quiz", entity_id: string | null, summary: string | null) {
   await db().create("activity", { action, entity_type, entity_id, summary: summary?.slice(0, 200) ?? null, created_at: now() });
 }
 

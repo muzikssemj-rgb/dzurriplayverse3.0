@@ -21,6 +21,8 @@ export async function SiteFooter() {
         </div>
         <nav aria-label="Pautan bawah" className="grid grid-cols-2 gap-2 text-sm">
           <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/games">Teroka Permainan</Link>
+          <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/kit">Kit Pembelajaran Muzik</Link>
+          <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/kuiz">Kuiz</Link>
           <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/favorites">Kegemaran</Link>
           <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/about">Tentang</Link>
           <Link className="py-1.5 text-white/80 hover:text-cyan-electric" href="/creator">Pencipta</Link>

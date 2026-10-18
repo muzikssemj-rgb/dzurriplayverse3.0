@@ -29,6 +29,18 @@ Semua ini tanpa mengubah kod atau deploy semula.
 - Halaman Creator (foto, nama, profil, moto), About, Install, Offline.
 - 4 permainan terbina dalam yang boleh dimainkan luar talian: Music Quest, Quiz Arena, Rhythm Runner, Memory Match.
 
+**Kit Pembelajaran Muzik (`/kit`)**
+- Video YouTube pilihan cikgu, disusun mengikut subjek sehingga 3 peringkat, contohnya *Alat Muzik Utama › Strings › Violin*.
+- Subjek permulaan: Alat Muzik Utama (Strings, Bass, Woodwind, Rhythm Section), Muzik Komputer, Aural dan Teori. Semuanya boleh diubah di admin.
+- Video dimainkan dengan YouTube *privacy-enhanced* (youtube-nocookie) dan hanya dimuatkan selepas murid menekan ▶.
+- Butang **Kongsi kepada murid** menyalin pautan subjek atau video.
+
+**Kuiz Guru (`/kuiz`)**
+- Guru mencipta soalan aneka pilihan (2–4 pilihan) atau Betul/Salah, dengan gambar dan penerangan jawapan.
+- Murid isi nama dan kelas, kemudian main kuiz pantas 2D: pemasa, bonus kelajuan, combo 🔥, konfeti dan bunyi.
+- Skor dikira di **server**. Jawapan betul tidak pernah dihantar ke pelayar murid.
+- Papan skor untuk murid. Guru melihat keputusan, analisis setiap soalan dan boleh muat turun CSV (Excel) di admin.
+
 **Pemilik (`/admin`, kata laluan sahaja)**
 - **Dashboard**: angka sebenar daripada pangkalan data dan log aktiviti.
 - **Games**:
@@ -38,6 +50,8 @@ Semua ini tanpa mengubah kod atau deploy semula.
 - **Creator Profile**:
   - muat naik **foto anda** dan **imej hero (kartun anda)**;
   - nama, gelaran, profil dan moto.
+- **Kit Pembelajaran**: tambah video YouTube (tampal pautan sahaja, tajuk diambil automatik), urus subjek dan kumpulan.
+- **Kuiz Guru**: cipta, terbit, edit kuiz; lihat keputusan murid, padam keputusan untuk kelas baharu, muat turun CSV.
 - **Reports**: laporan pautan rosak daripada pemain.
 - **Settings**: logout dan cara menukar kata laluan.
 
@@ -158,8 +172,8 @@ Perintah lain:
 | Ujian | Keputusan |
 |---|---|
 | Lint, typecheck, build | ✅ |
-| Unit (Vitest): validasi URL, magic bytes, polisi iframe, token sesi (palsu/tamat/tukar kata laluan), carian & susunan permainan | ✅ 33/33 |
-| E2E Playwright: halaman awam, carian, launcher, laporan, kegemaran, login (salah / cookie palsu / betul), CRUD permainan penuh, kategori, muat naik imej → WEBP, **profil pencipta + foto + imej hero**, tamat sesi, Server Action tanpa sesi ditolak, had login, PWA (*Chrome installability* lulus, luar talian) | ✅ 69/69 |
+| Unit (Vitest): validasi URL, magic bytes, polisi iframe, token sesi, carian permainan, pautan YouTube, pokok subjek, pengiraan skor kuiz, token cubaan kuiz | ✅ 55/55 |
+| E2E Playwright: halaman awam, launcher, login, CRUD permainan, profil pencipta, **Kit Pembelajaran (subjek, video YouTube)**, **Kuiz Guru (cipta, main di telefon, skor server, papan skor, CSV, token palsu/ulang ditolak)**, had login, PWA | ✅ 117/117 |
 
 **Penting:** ujian E2E dijalankan menggunakan **storan tempatan** yang menggantikan Firestore, kerana akses ke Google Cloud tidak tersedia dalam persekitaran pembangunan. Kod Firestore (`lib/db/firestore.ts`) kecil dan hanya menggunakan pertanyaan asas tanpa indeks komposit, tetapi ia **belum diuji terhadap projek Firebase sebenar**. Selepas deploy, uji log masuk, Add Game dan muat naik foto, atau jalankan `scripts/verify-deployment.mjs`.
 

@@ -10,10 +10,11 @@ const PRESETS = {
   thumbnail: { width: 800, height: 500, fit: "cover" as const },
   photo: { width: 600, height: 600, fit: "cover" as const },
   hero: { width: 1000, height: 1000, fit: "inside" as const },
+  question: { width: 1000, height: 700, fit: "inside" as const },
 };
 
 /**
- * POST multipart/form-data { file, kind: thumbnail|photo|hero }
+ * POST multipart/form-data { file, kind: thumbnail|photo|hero|question }
  * - Pemilik sahaja. Jenis disahkan melalui magic bytes (PNG/JPEG/WEBP/GIF; SVG ditolak), ≤ 4 MB.
  * - Imej diproses semula (sharp → WEBP, metadata EXIF/GPS dibuang) dan disimpan dalam Firestore.
  *   Ini mengelakkan keperluan Firebase Storage (yang memerlukan pelan berbayar Blaze).

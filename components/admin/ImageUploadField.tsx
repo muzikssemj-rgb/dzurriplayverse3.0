@@ -17,7 +17,7 @@ export function ImageUploadField({
   name: string;
   label: string;
   hint?: string;
-  kind: "photo" | "hero" | "thumbnail";
+  kind: "photo" | "hero" | "thumbnail" | "question";
   value: string;
   onChange: (v: string) => void;
   previewClass?: string;

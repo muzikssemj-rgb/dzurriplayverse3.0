@@ -4,11 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export const NAV_ITEMS = [
-  { href: "/", label: "Utama", icon: "home" },
-  { href: "/games", label: "Permainan", icon: "grid" },
-  { href: "/favorites", label: "Kegemaran", icon: "star" },
-  { href: "/me", label: "Profil", icon: "user" },
-  { href: "/about", label: "Tentang", icon: "info" },
+  { href: "/", label: "Utama", icon: "home", mobile: true },
+  { href: "/games", label: "Permainan", icon: "grid", mobile: true },
+  { href: "/kit", label: "Kit Muzik", icon: "video", mobile: true },
+  { href: "/kuiz", label: "Kuiz", icon: "quiz", mobile: true },
+  { href: "/favorites", label: "Kegemaran", icon: "star", mobile: true },
+  { href: "/me", label: "Profil", icon: "user", mobile: false },
+  { href: "/about", label: "Tentang", icon: "info", mobile: false },
 ] as const;
 
 function isActive(path: string, href: string) {
@@ -24,7 +26,7 @@ export function DesktopNav() {
           key={item.href}
           href={item.href}
           aria-current={isActive(path, item.href) ? "page" : undefined}
-          className={`rounded-xl px-3 py-2 text-sm font-medium transition hover:bg-white/5 ${
+          className={`${item.mobile ? "" : "hidden xl:block "}rounded-xl px-3 py-2 text-sm font-medium transition hover:bg-white/5 ${
             isActive(path, item.href) ? "text-cyan-electric" : "text-white/80"
           }`}
         >
@@ -44,7 +46,7 @@ export function BottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="mx-auto grid max-w-lg grid-cols-5">
-        {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.filter((i) => i.mobile).map((item) => {
           const active = isActive(path, item.href);
           return (
             <li key={item.href}>
@@ -100,6 +102,20 @@ function NavIcon({ name, active }: { name: string; active: boolean }) {
       return (
         <svg {...common}>
           <path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" />
+        </svg>
+      );
+    case "video":
+      return (
+        <svg {...common}>
+          <rect x="3" y="5" width="18" height="14" rx="3" />
+          <path d="m10 9 5 3-5 3z" />
+        </svg>
+      );
+    case "quiz":
+      return (
+        <svg {...common}>
+          <rect x="5" y="3" width="14" height="18" rx="2" />
+          <path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.2M12 17v.5" />
         </svg>
       );
     case "user":

@@ -316,6 +316,201 @@ let actionCapture = null;
   await ctx.close();
 }
 
+// ---------------------------------------------------------------- KIT PEMBELAJARAN + KUIZ GURU
+console.log("\n▶ Kit Pembelajaran Muzik & Kuiz Guru");
+{
+  const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 }, extraHTTPHeaders: { "x-forwarded-for": "10.4.4.4" } });
+  const page = await ctx.newPage();
+  await page.goto(BASE + "/admin/login");
+  await page.getByLabel("Admin password").fill(PASSWORD);
+  await submit(page, "Sign in");
+  await waitUrl(page, "**/admin/dashboard");
+
+  // Subjek permulaan
+  await page.getByRole("link", { name: /Kit Pembelajaran/ }).first().click();
+  await waitUrl(page, "**/admin/kit");
+  await page.getByRole("link", { name: /Urus Subjek/ }).click();
+  await waitUrl(page, "**/admin/kit/subjek");
+  const seeded = rows("subjects").map((s) => s.name);
+  check(["Alat Muzik Utama", "Strings", "Bass", "Woodwind", "Rhythm Section", "Muzik Komputer", "Aural dan Teori"].every((n) => seeded.includes(n)), `Starter subjects seeded (${seeded.join(", ")})`);
+  check(rows("subjects").find((s) => s.id === "strings")?.parent_id === "alat-muzik-utama", "Strings is grouped under Alat Muzik Utama");
+  check(rows("videos").length === 0, "No fake videos seeded");
+
+  // Tambah jenis alat muzik di bawah Strings
+  const add = page.locator("section", { has: page.getByRole("heading", { name: /Tambah subjek/ }) });
+  await add.getByLabel("Nama subjek *").fill("Violin");
+  await add.getByLabel("Di bawah").selectOption("strings");
+  await add.getByLabel("Ikon").fill("🎻");
+  await add.getByRole("button", { name: /Tambah/ }).click();
+  await add.getByText("Subjek ditambah.").waitFor();
+  const violin = rows("subjects").find((s) => s.name === "Violin");
+  check(violin?.parent_id === "strings" && violin.slug === "violin", "Admin adds instrument type under a group (Strings › Violin)");
+  // Subjek dengan slug dikhaskan ditolak
+  await add.getByLabel("Nama subjek *").fill("Tonton");
+  await add.getByRole("button", { name: /Tambah/ }).click();
+  await add.getByText(/Slug ini dikhaskan/).waitFor();
+  check(true, "Reserved subject slug rejected");
+  await page.screenshot({ path: `${OUT}/admin-kit-subjects.png`, fullPage: true });
+
+  // Video: pautan bukan YouTube ditolak
+  await page.goto(BASE + `/admin/kit/video/new?subjek=${violin.id}`);
+  await page.getByLabel("Pautan YouTube *").fill("https://evil.example.com/watch?v=dQw4w9WgXcQ");
+  await page.getByLabel("Tajuk").fill("Video palsu");
+  await page.getByRole("button", { name: /Simpan Video/ }).click();
+  await page.getByText(/bukan video YouTube yang sah/).last().waitFor();
+  check(rows("videos").length === 0, "Non-YouTube link rejected");
+  // Video sah
+  await page.getByLabel("Pautan YouTube *").fill("https://youtu.be/dQw4w9WgXcQ?t=42");
+  await page.getByAltText("Pratonton video").waitFor();
+  check(await page.getByText("ID video: dQw4w9WgXcQ").isVisible().catch(() => false) || (await page.getByText(/dQw4w9WgXcQ/).count()) > 0, "Live YouTube preview in admin form");
+  await page.getByLabel("Tajuk").fill("Cara Memegang Bow Violin");
+  await page.getByLabel("Nota untuk murid").fill("Tonton dan cuba pegang bow di rumah.");
+  await page.screenshot({ path: `${OUT}/admin-video-form.png`, fullPage: true });
+  await page.getByRole("button", { name: /Simpan Video/ }).click();
+  await waitUrl(page, "**/admin/kit?msg=video_added**");
+  const vid = rows("videos").find((v) => v.title === "Cara Memegang Bow Violin");
+  check(vid?.youtube_id === "dQw4w9WgXcQ" && vid.start_seconds === 42 && vid.subject_id === violin.id && vid.status === "published", "YouTube video saved (id, start time, subject, published)");
+  await page.screenshot({ path: `${OUT}/admin-kit.png`, fullPage: true });
+
+  // Kuiz: soalan kosong tidak boleh diterbitkan
+  await page.goto(BASE + "/admin/kuiz/new");
+  await page.getByLabel("Tajuk kuiz *").fill("Kuiz Keluarga Strings");
+  await page.getByRole("button", { name: /Terbitkan Kuiz/ }).click();
+  await page.getByText(/Soalan 1:/).waitFor();
+  check(rows("quizzes").length === 0, "Quiz with an empty question is not published");
+  const q1 = page.locator('li[aria-label="Soalan 1"]');
+  await q1.getByLabel("Soalan", { exact: true }).fill("Alat muzik manakah paling besar dalam keluarga strings?");
+  await q1.getByLabel("Soalan 1 pilihan A").fill("Violin");
+  await q1.getByLabel("Soalan 1 pilihan B").fill("Double bass");
+  await q1.getByLabel("Soalan 1 pilihan C").fill("Seruling");
+  await q1.getByLabel("Pilihan B ialah jawapan betul").check();
+  await q1.getByLabel(/Penerangan jawapan/).fill("Double bass paling besar dan paling rendah nadanya.");
+  await page.getByRole("button", { name: /Soalan Betul \/ Salah/ }).click();
+  const q2 = page.locator('li[aria-label="Soalan 2"]');
+  await q2.getByLabel("Soalan", { exact: true }).fill("Seruling ialah alat muzik bertali.");
+  await q2.getByLabel(/Salah/).check();
+  await page.getByLabel("Subjek (pilihan)").selectOption("strings");
+  await page.getByLabel(/Kocok susunan/).uncheck();
+  await page.screenshot({ path: `${OUT}/admin-quiz-editor.png`, fullPage: true });
+  await page.getByRole("button", { name: /Terbitkan Kuiz/ }).click();
+  await waitUrl(page, "**/admin/kuiz?msg=quiz_published**");
+  const quiz = rows("quizzes").find((q) => q.title === "Kuiz Keluarga Strings");
+  check(
+    quiz?.status === "published" && quiz.questions.length === 2 && quiz.questions[0].answer === 1 && quiz.questions[0].options.length === 3 && quiz.questions[1].type === "tf" && quiz.questions[1].answer === 1 && quiz.subject_id === "strings",
+    "Teacher creates & publishes quiz (MCQ + True/False)",
+  );
+
+  // ---------------- Murid (telefon)
+  const m = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+  const p = await m.newPage();
+  await p.goto(BASE + "/");
+  await p.waitForLoadState("networkidle");
+  check(await p.getByRole("heading", { name: "Kit Pembelajaran Muzik" }).isVisible(), "Home shows Kit Pembelajaran Muzik section");
+  check((await p.getByRole("link", { name: /Alat Muzik Utama/ }).count()) > 0 && (await p.getByRole("link", { name: "Cara Memegang Bow Violin" }).count()) > 0, "Home shows subject cards & latest video");
+  check(await p.getByRole("heading", { name: "Kuiz Cikgu" }).isVisible(), "Home shows teacher quizzes");
+  check(await p.getByRole("navigation", { name: "Navigasi bawah" }).getByRole("link", { name: "Kit Muzik" }).isVisible(), "Bottom nav has Kit Muzik tab");
+  check(await noOverflow(p), "No horizontal overflow on phone (home with kit)");
+  await p.screenshot({ path: `${OUT}/home-kit-mobile.png`, fullPage: true });
+
+  await p.getByRole("navigation", { name: "Navigasi bawah" }).getByRole("link", { name: "Kit Muzik" }).click();
+  await waitUrl(p, "**/kit");
+  await p.getByRole("heading", { level: 1, name: /Kit Pembelajaran/ }).waitFor();
+  check(await p.getByRole("heading", { name: "Pilih Subjek" }).isVisible(), "Kit page loads with subject list");
+  check(await noOverflow(p), "No horizontal overflow on phone (kit)");
+  await p.screenshot({ path: `${OUT}/kit-mobile.png`, fullPage: true });
+  await p.goto(BASE + "/kit/strings");
+  await p.getByRole("heading", { level: 1, name: "Strings" }).waitFor();
+  await p.waitForLoadState("networkidle");
+  check(await p.getByRole("link", { name: /Violin/ }).first().isVisible(), "Subject page lists instrument groups (Violin)");
+  check((await p.getByRole("link", { name: "Cara Memegang Bow Violin" }).count()) > 0, "Group video shown on parent subject page");
+  check((await p.getByRole("link", { name: /Kuiz Keluarga Strings/ }).count()) > 0, "Related quiz shown on subject page");
+  await p.screenshot({ path: `${OUT}/kit-subject-mobile.png`, fullPage: true });
+  await p.goto(BASE + `/kit/tonton/${vid.id}`);
+  check((await p.locator("iframe").count()) === 0, "Video iframe not loaded until play (fast page)");
+  await p.getByRole("button", { name: /Main video/ }).click();
+  const src = await p.locator("iframe").getAttribute("src");
+  check(/^https:\/\/www\.youtube-nocookie\.com\/embed\/dQw4w9WgXcQ\?.*start=42/.test(src ?? ""), `Privacy-enhanced YouTube embed with start time (${src})`);
+  check(await p.getByText("Tonton dan cuba pegang bow di rumah.").isVisible(), "Teacher note shown under video");
+  await p.screenshot({ path: `${OUT}/watch-mobile.png`, fullPage: true });
+  await p.goto(BASE + "/kit/tidak-wujud");
+  await p.getByText(/tidak wujud/).waitFor();
+  check(true, "Unknown subject shows Not Found page");
+
+  // Main kuiz
+  await p.goto(BASE + "/kuiz");
+  await p.getByRole("link", { name: /Kuiz Keluarga Strings/ }).click();
+  await waitUrl(p, "**/kuiz/kuiz-keluarga-strings");
+  const html = await (await p.request.get(BASE + "/kuiz/kuiz-keluarga-strings")).text();
+  check(!html.includes('\\"answer\\"') && !html.includes('"answer"') && !html.includes("paling rendah nadanya"), "Correct answers & explanations are NOT sent to the browser");
+  await p.getByRole("button", { name: /Mula Kuiz/ }).click();
+  await p.getByText(/Isi nama|Sila isi nama/).waitFor();
+  check(true, "Name required before playing");
+  await p.getByLabel("Nama anda *").fill("Aisyah");
+  await p.getByLabel("Kelas").fill("4 Bestari");
+  await p.screenshot({ path: `${OUT}/quiz-intro-mobile.png`, fullPage: true });
+  await p.getByRole("button", { name: /Mula Kuiz/ }).click();
+  await p.getByText("Soalan 1/2").waitFor();
+  await p.getByRole("button", { name: /Double bass/ }).waitFor({ timeout: 8000 });
+  await p.screenshot({ path: `${OUT}/quiz-question-mobile.png` });
+  await p.getByRole("button", { name: /Double bass/ }).click();
+  await p.getByText(/^Betul! \+\d+/).waitFor();
+  check(true, "Correct answer gives instant feedback & points");
+  check(await p.getByText(/paling rendah nadanya/).isVisible(), "Explanation shown after answering");
+  await p.screenshot({ path: `${OUT}/quiz-feedback-mobile.png` });
+  await p.getByRole("button", { name: /Seterusnya/ }).click();
+  await p.getByText("Soalan 2/2").waitFor();
+  await p.getByRole("button", { name: /^✓?\s*Betul$/ }).click();
+  await p.getByText("Alamak, salah!").waitFor();
+  check(await p.getByText("Jawapan betul:").isVisible(), "Wrong answer reveals the correct one");
+  await p.getByRole("button", { name: /Lihat Keputusan/ }).click();
+  await p.getByTestId("final-score").waitFor();
+  const shown = Number(await p.getByTestId("final-score").textContent());
+  const res = rows("quizResults").find((r) => r.name === "Aisyah");
+  check(res && res.score === shown && res.correct === 1 && res.total === 2 && res.kelas === "4 Bestari" && res.wrong.length === 1, `Score computed on server & saved (${shown})`);
+  check(await p.getByText("(anda)").isVisible(), "Leaderboard shows the player");
+  await p.screenshot({ path: `${OUT}/quiz-done-mobile.png`, fullPage: true });
+
+  // Keselamatan API kuiz
+  const api = await p.evaluate(async (id) => {
+    const post = (u, b) => fetch(u, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) });
+    const fake = await post(`/api/kuiz/${id}/hantar`, { token: `${id}.1.x.y`, name: "Hacker", answers: [] });
+    const t = (await (await post(`/api/kuiz/${id}/mula`, {})).json()).token;
+    const cheat = await (await post(`/api/kuiz/${id}/hantar`, { token: t, name: "Cuba Tipu", answers: [{ q: "nope", choice: 1, ms: 0 }] })).json();
+    const replay = await post(`/api/kuiz/${id}/hantar`, { token: t, name: "Cuba Tipu", answers: [] });
+    return { fake: fake.status, cheatScore: cheat.score, replay: replay.status };
+  }, quiz.id);
+  check(api.fake === 401, "Forged quiz token rejected");
+  check(api.cheatScore === 0, "Bogus answers score 0 (server-side scoring)");
+  check(api.replay === 409, "Same attempt cannot be submitted twice");
+  const xo = await (await browser.newContext()).request.post(BASE + `/api/kuiz/${quiz.id}/mula`, { headers: { Origin: "https://evil.example" } });
+  check(xo.status() === 403, "Cross-origin quiz API call blocked");
+  await m.close();
+
+  // Keputusan guru
+  await page.goto(BASE + `/admin/kuiz/${quiz.id}/keputusan`);
+  check(await page.getByRole("cell", { name: "Aisyah" }).isVisible(), "Teacher sees student result");
+  check(await page.getByRole("heading", { name: /Analisis soalan/ }).isVisible(), "Per-question analysis shown");
+  await page.screenshot({ path: `${OUT}/admin-quiz-results.png`, fullPage: true });
+  const csv = await (await page.request.get(BASE + `/api/admin/kuiz/${quiz.id}/csv`)).text();
+  check(csv.includes("Aisyah") && csv.includes("4 Bestari") && csv.startsWith("﻿Kedudukan"), "CSV export works");
+  const anon = await browser.newContext();
+  check((await anon.request.get(BASE + `/api/admin/kuiz/${quiz.id}/csv`, { maxRedirects: 0 })).status() === 401, "CSV export requires owner login");
+  await anon.close();
+
+  // Padam video → hilang daripada awam
+  await page.goto(BASE + "/admin/kit");
+  await page.getByRole("button", { name: "Padam" }).first().click();
+  await page.getByRole("button", { name: "Ya, padam" }).click();
+  await waitUrl(page, "**/admin/kit?msg=deleted");
+  check(rows("videos").length === 0, "Video deleted");
+  const gone = await (await browser.newContext()).newPage();
+  await gone.goto(BASE + `/kit/tonton/${vid.id}`);
+  await gone.getByText(/tidak wujud/).waitFor();
+  check(!(await gone.content()).includes("Cara Memegang Bow Violin"), "Deleted video no longer public");
+  await gone.context().close();
+  await ctx.close();
+}
+
 // ---------------------------------------------------------------- CREATOR PROFILE + RATE LIMIT
 console.log("\n▶ Creator profile & rate limiting");
 {

@@ -20,14 +20,14 @@ export function Hero({ image, creatorName = "Dzurri" }: { image?: string | null;
           </h1>
           <p className="mt-3 font-display text-xs font-semibold tracking-[0.2em] text-cyan-electric sm:text-sm sm:tracking-[0.35em]">MAIN · BELAJAR · TEROKA</p>
           <p className="mt-4 max-w-md text-sm text-white/80 sm:text-base">
-            Temui permainan baharu, teroka dunia yang menarik dan alami semesta pengembaraan digital sambil belajar muzik.
+            Main permainan, tonton video pembelajaran dan jawab kuiz cikgu. Semuanya untuk belajar muzik dengan cara yang seronok.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/games" className="btn-primary">
               Teroka Permainan <span aria-hidden="true">›</span>
             </Link>
-            <Link href="/#featured" className="btn-cyan">
-              ★ Permainan Pilihan
+            <Link href="/kit" className="btn-cyan">
+              🎬 Kit Pembelajaran
             </Link>
             <InstallButton />
           </div>

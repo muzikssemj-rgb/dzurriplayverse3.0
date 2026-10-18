@@ -32,6 +32,8 @@ check(sw.ok && (sw.headers.get("content-type") ?? "").includes("javascript"), "S
 check((await fetch(SITE + "/offline")).ok, "Halaman /offline");
 check((await fetch(SITE + "/games?category=music-world")).ok, "Deep link /games?category=… (muat semula tanpa 404)");
 check((await fetch(SITE + "/creator")).ok, "Halaman Creator");
+check((await fetch(SITE + "/kit")).ok, "Halaman Kit Pembelajaran Muzik");
+check((await fetch(SITE + "/kuiz")).ok, "Halaman Kuiz");
 
 const upload = await fetch(SITE + "/api/admin/upload", { method: "POST", headers: { Origin: SITE } });
 check(upload.status === 401, `API admin tanpa log masuk → ${upload.status} (dijangka 401)`);

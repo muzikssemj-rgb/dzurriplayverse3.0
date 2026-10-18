@@ -5,6 +5,8 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ACTION_LABEL, formatDateTime } from "@/lib/format";
 import { getDailyStats, summarize } from "@/lib/data/analytics";
 
+const ENTITY_LABEL: Record<string, string> = { game: "Game", category: "Category", profile: "Profile", subject: "Subjek", video: "Video", quiz: "Kuiz" };
+
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
@@ -72,7 +74,7 @@ export default async function DashboardPage() {
                   <span className="mt-1.5 size-2 shrink-0 rounded-full bg-cyan-electric" aria-hidden="true" />
                   <div className="min-w-0">
                     <p className="truncate">
-                      <span className="text-white/70">{a.entity_type === "game" ? "Game" : a.entity_type === "category" ? "Category" : "Profile"}</span>{" "}
+                      <span className="text-white/70">{ENTITY_LABEL[a.entity_type] ?? a.entity_type}</span>{" "}
                       <strong>{a.summary ?? "—"}</strong> {ACTION_LABEL[a.action] ?? a.action}
                     </p>
                     <p className="text-xs text-ink-muted">

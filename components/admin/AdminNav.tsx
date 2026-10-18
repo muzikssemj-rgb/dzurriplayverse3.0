@@ -8,6 +8,8 @@ const ITEMS = [
   { href: "/admin/analytics", label: "Analytics", icon: "📈" },
   { href: "/admin/games", label: "Games", icon: "🎮" },
   { href: "/admin/categories", label: "Categories", icon: "🗂️" },
+  { href: "/admin/kit", label: "Kit Pembelajaran", icon: "🎬" },
+  { href: "/admin/kuiz", label: "Kuiz Guru", icon: "📝" },
   { href: "/admin/profile", label: "Creator Profile", icon: "👤" },
   { href: "/admin/reports", label: "Reports", icon: "⚑" },
   { href: "/admin/settings", label: "Settings", icon: "⚙️" },

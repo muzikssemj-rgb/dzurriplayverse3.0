@@ -7,6 +7,12 @@ const MESSAGES: Record<string, { text: string; tone: "ok" | "error" }> = {
   duplicated: { text: "Game duplicated as a draft. Edit and publish when ready.", tone: "ok" },
   deleted: { text: "Deleted.", tone: "ok" },
   saved: { text: "Saved.", tone: "ok" },
+  video_added: { text: "Video disimpan. Jika status Diterbitkan, ia kini dipaparkan di Kit Pembelajaran Muzik.", tone: "ok" },
+  video_published: { text: "Video diterbitkan — murid kini boleh menontonnya.", tone: "ok" },
+  quiz_saved: { text: "Kuiz disimpan sebagai draf.", tone: "ok" },
+  quiz_published: { text: "Kuiz diterbitkan — murid kini boleh bermain di tab Kuiz.", tone: "ok" },
+  quiz_empty: { text: "Kuiz tanpa soalan tidak boleh diterbitkan.", tone: "error" },
+  cleared: { text: "Semua keputusan dipadam.", tone: "ok" },
   error: { text: "The action failed. Please try again.", tone: "error" },
 };
 

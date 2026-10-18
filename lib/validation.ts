@@ -225,3 +225,114 @@ export function evaluateFramePolicy(
   }
   return { embeddable: true, reason: null };
 }
+
+// ------------------------------------------------------------------ Kit Pembelajaran Muzik
+const optionalText = (max: number, label: string) =>
+  z
+    .string()
+    .trim()
+    .max(max, `${label} maksimum ${max} aksara.`)
+    .optional()
+    .transform((v) => (v ? v : null));
+
+const optionalId = (label: string) =>
+  z
+    .string()
+    .optional()
+    .transform((v) => (v && v.trim() ? v.trim() : null))
+    .refine((v) => v === null || /^[A-Za-z0-9_-]{1,64}$/.test(v), `${label} tidak sah.`);
+
+export const subjectInputSchema = z.object({
+  name: z.string().trim().min(2, "Nama subjek sekurang-kurangnya 2 aksara.").max(60, "Nama subjek maksimum 60 aksara."),
+  slug: z
+    .string()
+    .trim()
+    .optional()
+    .transform((v) => (v ? slugify(v) : "")),
+  description: optionalText(300, "Penerangan"),
+  icon: optionalText(16, "Ikon"),
+  parent_id: optionalId("Subjek induk"),
+  display_order: z.coerce.number().int().min(0).max(9999).default(0),
+});
+export type SubjectInput = z.output<typeof subjectInputSchema>;
+
+export const videoInputSchema = z.object({
+  title: z.string().trim().max(150, "Tajuk maksimum 150 aksara.").default(""),
+  url: z.string().trim().min(1, "Tampal pautan video YouTube.").max(500, "Pautan terlalu panjang."),
+  description: z.string().trim().max(1500, "Penerangan maksimum 1500 aksara.").default(""),
+  subject_id: z
+    .string()
+    .trim()
+    .min(1, "Pilih subjek untuk video ini.")
+    .regex(/^[A-Za-z0-9_-]{1,64}$/, "Subjek tidak sah."),
+  display_order: z.coerce.number().int().min(0).max(9999).default(0),
+  status: z.enum(["published", "draft"]).default("published"),
+});
+export type VideoInput = z.output<typeof videoInputSchema>;
+
+// ------------------------------------------------------------------ Kuiz Guru
+const questionSchema = z
+  .object({
+    id: z.string().regex(/^[A-Za-z0-9_-]{1,24}$/, "ID soalan tidak sah."),
+    type: z.enum(["mcq", "tf"]),
+    text: z.string().trim().min(1, "Soalan tidak boleh kosong.").max(400, "Soalan maksimum 400 aksara."),
+    image_url: z
+      .string()
+      .nullish()
+      .transform((v, ctx) => {
+        if (!v || !v.trim()) return null;
+        const n = normalizeSafeUrl(v);
+        if (!n) {
+          ctx.addIssue({ code: "custom", message: "URL gambar mesti https:// atau gambar yang dimuat naik." });
+          return z.NEVER;
+        }
+        return n;
+      }),
+    options: z.array(z.string().trim().max(150, "Pilihan jawapan maksimum 150 aksara.")).max(4),
+    answer: z.number().int().min(0).max(3),
+    explanation: z
+      .string()
+      .trim()
+      .max(300, "Penerangan jawapan maksimum 300 aksara.")
+      .nullish()
+      .transform((v) => (v ? v : null)),
+  })
+  .transform((q, ctx) => {
+    if (q.type === "tf") return { ...q, options: ["Betul", "Salah"], answer: Math.min(q.answer, 1) };
+    const options = q.options.filter((o) => o.length > 0);
+    if (options.length < 2) {
+      ctx.addIssue({ code: "custom", message: "Soalan aneka pilihan perlukan sekurang-kurangnya 2 pilihan jawapan." });
+      return z.NEVER;
+    }
+    // Jawapan betul mesti merujuk pilihan yang tidak kosong
+    const target = q.options[q.answer];
+    if (!target) {
+      ctx.addIssue({ code: "custom", message: "Tandakan jawapan betul pada pilihan yang diisi." });
+      return z.NEVER;
+    }
+    return { ...q, options, answer: options.indexOf(target) };
+  });
+
+export const quizInputSchema = z.object({
+  title: z.string().trim().min(2, "Tajuk kuiz sekurang-kurangnya 2 aksara.").max(120, "Tajuk maksimum 120 aksara."),
+  slug: z
+    .string()
+    .trim()
+    .optional()
+    .transform((v) => (v ? slugify(v) : "")),
+  description: z.string().trim().max(500, "Penerangan maksimum 500 aksara.").default(""),
+  subject_id: optionalId("Subjek"),
+  time_limit: z.coerce.number().int().min(5, "Masa minimum 5 saat.").max(120, "Masa maksimum 120 saat.").default(20),
+  shuffle: z
+    .union([z.literal("on"), z.literal("true"), z.literal(""), z.null()])
+    .optional()
+    .transform((v) => v === "on" || v === "true"),
+  show_leaderboard: z
+    .union([z.literal("on"), z.literal("true"), z.literal(""), z.null()])
+    .optional()
+    .transform((v) => v === "on" || v === "true"),
+  status: z.enum(["published", "draft"]).default("draft"),
+  display_order: z.coerce.number().int().min(0).max(9999).default(0),
+  questions: z.array(questionSchema).max(50, "Maksimum 50 soalan setiap kuiz."),
+});
+export type QuizInput = z.output<typeof quizInputSchema>;

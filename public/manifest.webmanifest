@@ -103,6 +103,28 @@
       ]
     },
     {
+      "name": "Kit Pembelajaran Muzik",
+      "short_name": "Kit Muzik",
+      "url": "/kit?source=pwa-shortcut",
+      "icons": [
+        {
+          "src": "/icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Kuiz",
+      "short_name": "Kuiz",
+      "url": "/kuiz?source=pwa-shortcut",
+      "icons": [
+        {
+          "src": "/icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
       "name": "Kegemaran",
       "short_name": "Kegemaran",
       "url": "/favorites?source=pwa-shortcut",

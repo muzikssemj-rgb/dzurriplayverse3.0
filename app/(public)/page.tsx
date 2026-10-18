@@ -6,18 +6,25 @@ import { WorldCard } from "@/components/games/WorldCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { DataNotice } from "@/components/ui/DataNotice";
 import { getCategories, getCreatorProfile, getPublishedGames } from "@/lib/data/public";
+import { getKit } from "@/lib/data/kit";
+import { getPublishedQuizzes } from "@/lib/data/quiz";
+import { SubjectGrid, VideoRow } from "@/components/kit/KitCards";
+import { QuizGrid } from "@/components/quiz/QuizCard";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [profile, cats, featured, popular, recent, all] = await Promise.all([
+  const [profile, cats, featured, popular, recent, all, kit, quizzes] = await Promise.all([
     getCreatorProfile(),
     getCategories(),
     getPublishedGames({ featured: true, limit: 12 }),
     getPublishedGames({ sort: "popular", limit: 8 }),
     getPublishedGames({ sort: "recent", limit: 8 }),
     getPublishedGames({ limit: 8 }),
+    getKit(),
+    getPublishedQuizzes(),
   ]);
+  const recentVideos = kit.ok ? [...kit.data.videos].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 10) : [];
   const error = !cats.ok ? cats.error : !all.ok ? all.error : null;
 
   return (
@@ -34,6 +41,26 @@ export default async function HomePage() {
             <section aria-labelledby="featured" className="scroll-mt-24">
               <SectionHeader id="featured" title="Permainan Pilihan" icon="⭐" href="/games?featured=1" />
               <GameRow games={featured.data.games} />
+            </section>
+          )}
+
+          {kit.ok && kit.data.tree.length > 0 && (
+            <section aria-labelledby="kit" className="scroll-mt-24 space-y-5">
+              <SectionHeader id="kit" title="Kit Pembelajaran Muzik" icon="🎬" href="/kit" linkLabel="Buka Kit" />
+              <SubjectGrid nodes={kit.data.tree} />
+              {recentVideos.length > 0 && (
+                <div>
+                  <h3 className="mb-3 text-sm font-semibold tracking-wide text-white/80">▶ Video pembelajaran terbaru</h3>
+                  <VideoRow videos={recentVideos} subjects={kit.data.subjects} />
+                </div>
+              )}
+            </section>
+          )}
+
+          {quizzes.ok && quizzes.data.length > 0 && (
+            <section aria-labelledby="kuiz" className="scroll-mt-24">
+              <SectionHeader id="kuiz" title="Kuiz Cikgu" icon="📝" href="/kuiz" />
+              <QuizGrid quizzes={quizzes.data.slice(0, 4)} subjects={kit.ok ? kit.data.subjects : []} />
             </section>
           )}
 
