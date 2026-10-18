@@ -258,7 +258,9 @@ export type SubjectInput = z.output<typeof subjectInputSchema>;
 
 export const videoInputSchema = z.object({
   title: z.string().trim().max(150, "Tajuk maksimum 150 aksara.").default(""),
-  url: z.string().trim().min(1, "Tampal pautan video YouTube.").max(500, "Pautan terlalu panjang."),
+  url: z.string().trim().min(1, "Tampal pautan YouTube atau laman web.").max(1000, "Pautan terlalu panjang."),
+  thumbnail_url: optionalSafeUrl("Gambar kad"),
+  open_mode: z.enum(["auto", "embed", "tab"]).default("auto"),
   description: z.string().trim().max(1500, "Penerangan maksimum 1500 aksara.").default(""),
   subject_id: z
     .string()

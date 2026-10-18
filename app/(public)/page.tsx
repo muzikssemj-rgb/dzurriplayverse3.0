@@ -50,7 +50,7 @@ export default async function HomePage() {
               <SubjectGrid nodes={kit.data.tree} />
               {recentVideos.length > 0 && (
                 <div>
-                  <h3 className="mb-3 text-sm font-semibold tracking-wide text-white/80">▶ Video pembelajaran terbaru</h3>
+                  <h3 className="mb-3 text-sm font-semibold tracking-wide text-white/80">▶ Bahan pembelajaran terbaru</h3>
                   <VideoRow videos={recentVideos} subjects={kit.data.subjects} />
                 </div>
               )}

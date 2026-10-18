@@ -352,24 +352,48 @@ console.log("\n▶ Kit Pembelajaran Muzik & Kuiz Guru");
   check(true, "Reserved subject slug rejected");
   await page.screenshot({ path: `${OUT}/admin-kit-subjects.png`, fullPage: true });
 
-  // Video: pautan bukan YouTube ditolak
+  // Pautan tidak selamat ditolak (http:, javascript:, rangkaian dalaman)
   await page.goto(BASE + `/admin/kit/video/new?subjek=${violin.id}`);
-  await page.getByLabel("Pautan YouTube *").fill("https://evil.example.com/watch?v=dQw4w9WgXcQ");
-  await page.getByLabel("Tajuk").fill("Video palsu");
-  await page.getByRole("button", { name: /Simpan Video/ }).click();
-  await page.getByText(/bukan video YouTube yang sah/).last().waitFor();
-  check(rows("videos").length === 0, "Non-YouTube link rejected");
+  for (const bad of ["http://example.com/page", "javascript:alert(1)", "https://192.168.1.1/admin"]) {
+    await page.getByLabel(/^Pautan/).fill(bad);
+    await page.getByLabel("Tajuk").fill("Pautan palsu");
+    await page.getByRole("button", { name: /Simpan Bahan/ }).click();
+    await page.getByText(/mesti bermula dengan https:\/\/ \(cth/).last().waitFor();
+  }
+  check(rows("videos").length === 0, "Unsafe links rejected (http, javascript:, private network)");
   // Video sah
-  await page.getByLabel("Pautan YouTube *").fill("https://youtu.be/dQw4w9WgXcQ?t=42");
+  await page.getByLabel(/^Pautan/).fill("https://youtu.be/dQw4w9WgXcQ?t=42");
   await page.getByAltText("Pratonton video").waitFor();
   check(await page.getByText("ID video: dQw4w9WgXcQ").isVisible().catch(() => false) || (await page.getByText(/dQw4w9WgXcQ/).count()) > 0, "Live YouTube preview in admin form");
   await page.getByLabel("Tajuk").fill("Cara Memegang Bow Violin");
   await page.getByLabel("Nota untuk murid").fill("Tonton dan cuba pegang bow di rumah.");
   await page.screenshot({ path: `${OUT}/admin-video-form.png`, fullPage: true });
-  await page.getByRole("button", { name: /Simpan Video/ }).click();
+  await page.getByRole("button", { name: /Simpan Bahan/ }).click();
   await waitUrl(page, "**/admin/kit?msg=video_added**");
   const vid = rows("videos").find((v) => v.title === "Cara Memegang Bow Violin");
-  check(vid?.youtube_id === "dQw4w9WgXcQ" && vid.start_seconds === 42 && vid.subject_id === violin.id && vid.status === "published", "YouTube video saved (id, start time, subject, published)");
+  check(vid?.kind === "youtube" && vid.youtube_id === "dQw4w9WgXcQ" && vid.start_seconds === 42 && vid.subject_id === violin.id && vid.status === "published", "YouTube video saved (id, start time, subject, published)");
+
+  // Pautan artifak Claude (laman menyekat iframe → dibuka di tab baharu)
+  await page.goto(BASE + "/admin/kit/video/new?subjek=aural-dan-teori");
+  await page.getByLabel(/^Pautan/).fill("https://claude.ai/public/artifacts/0b9c1d2e-aaaa-bbbb-cccc-123456789abc");
+  await page.getByText(/Dikesan: Artifak Claude · claude\.ai/).waitFor();
+  check(true, "Admin form detects Claude artifact link");
+  await page.getByLabel("Tajuk").fill("Latihan Nilai Not (Artifak Claude)");
+  await page.getByLabel("Cara murid membuka pautan").selectOption("tab");
+  await page.screenshot({ path: `${OUT}/admin-link-form.png`, fullPage: true });
+  await page.getByRole("button", { name: /Simpan Bahan/ }).click();
+  await waitUrl(page, "**/admin/kit?msg=**");
+  const claudeLink = rows("videos").find((v) => v.title.startsWith("Latihan Nilai Not"));
+  check(claudeLink?.kind === "link" && claudeLink.url.startsWith("https://claude.ai/public/artifacts/") && claudeLink.open_mode === "tab" && claudeLink.subject_id === "aural-dan-teori", "Claude artifact link saved (opens in new tab)");
+  // Laman web dipaparkan dalam Playverse
+  await page.goto(BASE + "/admin/kit/video/new?subjek=muzik-komputer");
+  await page.getByLabel(/^Pautan/).fill("https://musiclab.chromeexperiments.com/Song-Maker/");
+  await page.getByLabel("Tajuk").fill("Song Maker");
+  await page.getByLabel("Cara murid membuka pautan").selectOption("embed");
+  await page.getByRole("button", { name: /Simpan Bahan/ }).click();
+  await waitUrl(page, "**/admin/kit?msg=**");
+  const webLink = rows("videos").find((v) => v.title === "Song Maker");
+  check(webLink?.kind === "link" && webLink.open_mode === "embed", "Website link saved (embedded in Playverse)");
   await page.screenshot({ path: `${OUT}/admin-kit.png`, fullPage: true });
 
   // Kuiz: soalan kosong tidak boleh diterbitkan
@@ -432,6 +456,17 @@ console.log("\n▶ Kit Pembelajaran Muzik & Kuiz Guru");
   check(/^https:\/\/www\.youtube-nocookie\.com\/embed\/dQw4w9WgXcQ\?.*start=42/.test(src ?? ""), `Privacy-enhanced YouTube embed with start time (${src})`);
   check(await p.getByText("Tonton dan cuba pegang bow di rumah.").isVisible(), "Teacher note shown under video");
   await p.screenshot({ path: `${OUT}/watch-mobile.png`, fullPage: true });
+  await p.goto(BASE + `/kit/tonton/${claudeLink.id}`);
+  const open = p.getByRole("link", { name: /Buka Latihan Nilai Not/ });
+  check((await open.getAttribute("href")) === claudeLink.url && (await open.getAttribute("target")) === "_blank", "Claude artifact opens in a new tab");
+  check(await p.getByText(/Artifak Claude ·/).first().isVisible(), "Claude link labelled on page");
+  await p.screenshot({ path: `${OUT}/watch-claude-mobile.png`, fullPage: true });
+  await p.goto(BASE + `/kit/tonton/${webLink.id}`);
+  check((await p.locator('iframe[title="Song Maker"]').getAttribute("src")) === "https://musiclab.chromeexperiments.com/Song-Maker/", "Website embedded in Playverse iframe");
+  check((await p.locator('iframe[title="Song Maker"]').getAttribute("sandbox"))?.includes("allow-scripts") && (await p.getByRole("button", { name: /Skrin Penuh/ }).count()) === 1, "Embedded site is sandboxed with fullscreen button");
+  await p.goto(BASE + "/kit/aural-dan-teori");
+  await p.getByRole("heading", { level: 1, name: "Aural dan Teori" }).waitFor();
+  check((await p.getByText("🤖 Artifak Claude").count()) > 0, "Kit card shows Claude artifact badge");
   await p.goto(BASE + "/kit/tidak-wujud");
   await p.getByText(/tidak wujud/).waitFor();
   check(true, "Unknown subject shows Not Found page");
@@ -499,10 +534,10 @@ console.log("\n▶ Kit Pembelajaran Muzik & Kuiz Guru");
 
   // Padam video → hilang daripada awam
   await page.goto(BASE + "/admin/kit");
-  await page.getByRole("button", { name: "Padam" }).first().click();
+  await page.locator("li", { has: page.getByRole("link", { name: "Cara Memegang Bow Violin" }) }).getByRole("button", { name: "Padam" }).click();
   await page.getByRole("button", { name: "Ya, padam" }).click();
   await waitUrl(page, "**/admin/kit?msg=deleted");
-  check(rows("videos").length === 0, "Video deleted");
+  check(!rows("videos").some((v) => v.id === vid.id) && rows("videos").length === 2, "Video deleted (other items kept)");
   const gone = await (await browser.newContext()).newPage();
   await gone.goto(BASE + `/kit/tonton/${vid.id}`);
   await gone.getByText(/tidak wujud/).waitFor();

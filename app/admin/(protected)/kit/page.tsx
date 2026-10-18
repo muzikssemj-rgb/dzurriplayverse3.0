@@ -5,7 +5,7 @@ import { deleteVideoAction, setVideoStatusAction } from "@/lib/actions/kit";
 import { Flash } from "@/components/admin/Flash";
 import { ConfirmSubmit } from "@/components/admin/ConfirmSubmit";
 import { StatusBadge } from "@/components/admin/StatusBadge";
-import { descendantIds, subjectPath, ytThumb } from "@/lib/kit";
+import { descendantIds, linkInfo, resourceThumb, subjectPath } from "@/lib/kit";
 import { formatDateTime } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Kit Pembelajaran" };
@@ -27,12 +27,12 @@ export default async function AdminKitPage(props: PageProps<"/admin/kit">) {
         <div>
           <h1 className="font-display text-2xl font-black tracking-wide">Kit Pembelajaran Muzik</h1>
           <p className="text-sm text-ink-muted">
-            {videos.length} video · {subjects.length} subjek. Video yang diterbitkan dipaparkan di tab <strong>Kit Muzik</strong> dan muka utama.
+            {videos.length} bahan · {subjects.length} subjek. Video YouTube & pautan laman web (termasuk artifak Claude) yang diterbitkan dipaparkan di tab <strong>Kit Muzik</strong> dan muka utama.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Link href="/admin/kit/subjek" className="btn-ghost">🗂️ Urus Subjek</Link>
-          <Link href="/admin/kit/video/new" className="btn-primary">＋ Tambah Video</Link>
+          <Link href="/admin/kit/video/new" className="btn-primary">＋ Tambah Bahan</Link>
         </div>
       </header>
 
@@ -60,9 +60,9 @@ export default async function AdminKitPage(props: PageProps<"/admin/kit">) {
 
       {list.length === 0 ? (
         <div className="glass p-8 text-center text-ink-muted">
-          Belum ada video{node ? ` dalam ${node.name}` : ""}.{" "}
+          Belum ada bahan{node ? ` dalam ${node.name}` : ""}.{" "}
           <Link href={`/admin/kit/video/new${node ? `?subjek=${node.id}` : ""}`} className="text-cyan-electric underline">
-            Tambah video YouTube
+            Tambah video YouTube atau pautan
           </Link>
           .
         </div>
@@ -71,22 +71,26 @@ export default async function AdminKitPage(props: PageProps<"/admin/kit">) {
           {list.map((v) => (
             <li key={v.id} className="glass flex flex-col gap-3 p-3 md:flex-row md:items-center">
               <div className="flex min-w-0 flex-1 items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={ytThumb(v.youtube_id)} alt="" loading="lazy" className="h-14 w-24 shrink-0 rounded-lg object-cover" />
+                {resourceThumb(v) ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={resourceThumb(v)!} alt="" loading="lazy" className="h-14 w-24 shrink-0 rounded-lg object-cover" />
+                ) : (
+                  <span className="grid h-14 w-24 shrink-0 place-items-center rounded-lg bg-white/5 text-2xl" aria-hidden="true">{linkInfo(v.url).icon}</span>
+                )}
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-2">
                     <Link href={`/admin/kit/video/${v.id}`} className="truncate font-semibold hover:text-cyan-electric">{v.title}</Link>
                     <StatusBadge status={v.status} />
                   </p>
                   <p className="truncate text-xs text-ink-muted">
-                    {pathLabel(v.subject_id)} · {formatDateTime(v.updated_at)}
+                    {v.kind === "link" ? `${linkInfo(v.url).icon} ${linkInfo(v.url).label} · ${v.open_mode === "embed" ? "dalam Playverse" : "tab baharu"}` : "▶ YouTube"} · {pathLabel(v.subject_id)} · {formatDateTime(v.updated_at)}
                   </p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Link href={`/admin/kit/video/${v.id}`} className="btn-ghost !min-h-9 !px-3">Edit</Link>
                 {v.status === "published" && (
-                  <Link href={`/kit/tonton/${v.id}`} target="_blank" className="btn-ghost !min-h-9 !px-3">Tonton ↗</Link>
+                  <Link href={`/kit/tonton/${v.id}`} target="_blank" className="btn-ghost !min-h-9 !px-3">Lihat ↗</Link>
                 )}
                 <form action={setVideoStatusAction}>
                   <input type="hidden" name="id" value={v.id} />
@@ -98,8 +102,8 @@ export default async function AdminKitPage(props: PageProps<"/admin/kit">) {
                   fields={{ id: v.id }}
                   label="Padam"
                   confirmLabel="Ya, padam"
-                  title={`Padam video “${v.title}”?`}
-                  message="Video akan dibuang daripada Kit Pembelajaran. Video asal di YouTube tidak terjejas."
+                  title={`Padam “${v.title}”?`}
+                  message="Bahan akan dibuang daripada Kit Pembelajaran. Video / laman asal tidak terjejas."
                 />
               </div>
             </li>

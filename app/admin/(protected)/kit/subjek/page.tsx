@@ -41,11 +41,11 @@ export default async function SubjectsPage(props: PageProps<"/admin/kit/subjek">
                   {s.depth > 0 && <span className="text-ink-muted" aria-hidden="true">↳ </span>}
                   {s.icon} {s.name}{" "}
                   <span className="text-xs font-normal text-ink-muted">
-                    · {s.video_count} video{s.children.length ? ` · ${s.children.length} sub-subjek` : ""}
+                    · {s.video_count} bahan{s.children.length ? ` · ${s.children.length} sub-subjek` : ""}
                   </span>
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <Link href={`/admin/kit/video/new?subjek=${s.id}`} className="btn-ghost !min-h-9 !px-3">＋ Video</Link>
+                  <Link href={`/admin/kit/video/new?subjek=${s.id}`} className="btn-ghost !min-h-9 !px-3">＋ Bahan</Link>
                   <Link href={`/kit/${s.slug}`} target="_blank" className="btn-ghost !min-h-9 !px-3">Lihat ↗</Link>
                   <ConfirmSubmit
                     action={deleteSubjectAction}

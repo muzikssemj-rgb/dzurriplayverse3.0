@@ -57,7 +57,7 @@ export default async function SubjectPage(props: PageProps<"/kit/[slug]">) {
             <h1 className="font-display text-2xl font-black tracking-wide sm:text-3xl">{node.name}</h1>
             {node.description && <p className="mt-1 text-sm text-ink-muted">{node.description}</p>}
             <p className="mt-1 text-xs text-white/70">
-              🎬 {node.video_count} video{node.children.length > 0 && ` · 🗂️ ${node.children.length} kumpulan`}
+              📚 {node.video_count} bahan{node.children.length > 0 && ` · 🗂️ ${node.children.length} kumpulan`}
             </p>
           </div>
         </div>
@@ -73,7 +73,7 @@ export default async function SubjectPage(props: PageProps<"/kit/[slug]">) {
 
       {own.length > 0 && (
         <section aria-labelledby="own-videos">
-          <SectionHeader id="own-videos" title={node.children.length ? `Video ${node.name}` : "Video"} icon="🎬" />
+          <SectionHeader id="own-videos" title={node.children.length ? `Bahan ${node.name}` : "Bahan Pembelajaran"} icon="🎬" />
           <VideoGrid videos={own} />
         </section>
       )}
@@ -91,7 +91,7 @@ export default async function SubjectPage(props: PageProps<"/kit/[slug]">) {
       })}
 
       {node.video_count === 0 && (
-        <p className="glass p-6 text-center text-ink-muted">Belum ada video dalam {node.name}. Cikgu akan menambah video tidak lama lagi!</p>
+        <p className="glass p-6 text-center text-ink-muted">Belum ada bahan dalam {node.name}. Cikgu akan menambahnya tidak lama lagi!</p>
       )}
 
       {relatedQuizzes.length > 0 && (

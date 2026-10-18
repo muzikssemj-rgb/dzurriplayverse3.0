@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSubjectTree, descendantIds, flattenTree, parseYouTubeUrl, subjectPath, ytEmbed, type Subject } from "@/lib/kit";
+import { buildSubjectTree, descendantIds, flattenTree, isAllowedLink, linkInfo, parseYouTubeUrl, resourceHref, resourceThumb, subjectPath, ytEmbed, type Subject } from "@/lib/kit";
 import { cleanPlayerText, pointsFor, rankLeaders, scoreAttempt, starsFor } from "@/lib/quiz";
 import { quizInputSchema, videoInputSchema } from "@/lib/validation";
 import { createAttemptToken, verifyAttemptToken } from "@/lib/quiz-token";
@@ -159,5 +159,30 @@ describe("attempt token", () => {
     expect(verifyAttemptToken(t, "quiz1", 1_000_000 + 4 * 3600_000)).toBeNull();
     expect(verifyAttemptToken(t.replace("1000000", "1000001"), "quiz1", 1_005_000)).toBeNull();
     expect(verifyAttemptToken("rubbish", "quiz1")).toBeNull();
+  });
+});
+
+describe("web links (non-YouTube)", () => {
+  it("recognises Claude artifacts & common sites", () => {
+    expect(linkInfo("https://claude.ai/public/artifacts/abc")).toMatchObject({ isClaude: true, label: "Artifak Claude", host: "claude.ai" });
+    expect(linkInfo("https://www.musictheory.net/lessons")).toMatchObject({ icon: "🎼", host: "musictheory.net" });
+    expect(linkInfo("https://kembaramuzika.vercel.app/")).toMatchObject({ label: "Aplikasi web" });
+    expect(linkInfo("https://example.com")).toMatchObject({ label: "Laman web", isClaude: false });
+  });
+  it("only allows public https links", () => {
+    expect(isAllowedLink("https://claude.ai/public/artifacts/abc")).toBe(true);
+    expect(isAllowedLink("http://example.com")).toBe(false);
+    expect(isAllowedLink("javascript:alert(1)")).toBe(false);
+    expect(isAllowedLink("https://localhost:3000")).toBe(false);
+    expect(isAllowedLink("https://192.168.1.10/admin")).toBe(false);
+    expect(isAllowedLink("https://10.0.0.1")).toBe(false);
+    expect(isAllowedLink("https://user:pw@example.com")).toBe(false);
+    expect(isAllowedLink("https://fcbarcelona.com")).toBe(true);
+  });
+  it("href & thumbnail per kind", () => {
+    expect(resourceHref({ kind: "link", url: "https://a.com/x", youtube_id: "", start_seconds: 0 })).toBe("https://a.com/x");
+    expect(resourceHref({ kind: "youtube", url: "", youtube_id: "dQw4w9WgXcQ", start_seconds: 5 })).toBe("https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=5s");
+    expect(resourceThumb({ kind: "link", youtube_id: "", thumbnail_url: null })).toBeNull();
+    expect(resourceThumb({ kind: "youtube", youtube_id: "dQw4w9WgXcQ", thumbnail_url: null })).toContain("i.ytimg.com");
   });
 });

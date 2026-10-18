@@ -4,8 +4,8 @@ import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdminAction } from "@/lib/auth";
 import { DATA_TAG } from "@/lib/data/store";
-import { deleteSubject, deleteVideo, fetchYouTubeInfo, getAdminKit, saveSubject, saveVideo, setVideoStatus, subjectSlugTaken } from "@/lib/data/kit";
-import { subjectInputSchema, slugify, videoInputSchema } from "@/lib/validation";
+import { deleteSubject, deleteVideo, fetchLinkInfo, fetchYouTubeInfo, isAllowedLink, getAdminKit, saveSubject, saveVideo, setVideoStatus, subjectSlugTaken } from "@/lib/data/kit";
+import { normalizeSafeUrl, subjectInputSchema, slugify, videoInputSchema } from "@/lib/validation";
 import { MAX_SUBJECT_DEPTH, parseYouTubeUrl, RESERVED_SUBJECT_SLUGS, subjectPath } from "@/lib/kit";
 import { ID_RE } from "@/lib/types";
 import type { ActionState } from "@/lib/actions/state";
@@ -90,42 +90,56 @@ export async function saveVideoAction(_prev: ActionState, formData: FormData): P
   const id = String(formData.get("id") ?? "");
   if (id && !ID_RE.test(id)) return { error: "ID video tidak sah." };
   const parsed = videoInputSchema.safeParse(
-    Object.fromEntries(["title", "url", "description", "subject_id", "display_order", "status"].map((k) => [k, formData.get(k) ?? undefined])),
+    Object.fromEntries(["title", "url", "description", "subject_id", "display_order", "status", "thumbnail_url", "open_mode"].map((k) => [k, formData.get(k) ?? undefined])),
   );
   if (!parsed.success) return issues(parsed.error);
   const input = parsed.data;
   const yt = parseYouTubeUrl(input.url);
-  if (!yt) return { fieldErrors: { url: "Pautan ini bukan video YouTube yang sah (cth. https://youtu.be/… atau https://www.youtube.com/watch?v=…)." }, error: "Sila semak medan yang ditanda." };
+  const linkUrl = yt ? null : normalizeSafeUrl(input.url);
+  if (!yt && (!linkUrl || !isAllowedLink(linkUrl)))
+    return { fieldErrors: { url: "Pautan mesti bermula dengan https:// (cth. https://youtu.be/… atau https://laman-anda.com/…)." }, error: "Sila semak medan yang ditanda." };
 
   let savedId = id;
+  let note = "";
   try {
     const { subjects } = await getAdminKit();
     if (!subjects.some((s) => s.id === input.subject_id)) return { fieldErrors: { subject_id: "Subjek tidak wujud." }, error: "Sila semak medan yang ditanda." };
     let title = input.title;
-    const info = await fetchYouTubeInfo(yt.id);
-    if (info.status === "blocked")
-      return { fieldErrors: { url: "Pemilik video ini tidak membenarkan ia dipaparkan di laman lain. Pilih video lain." }, error: "Video tidak boleh dibenamkan." };
-    if (info.status === "missing") return { fieldErrors: { url: "Video tidak dijumpai, peribadi atau telah dipadam." }, error: "Video tidak dijumpai." };
-    if (!title) title = info.title ?? "";
+    let row;
+    if (yt) {
+      const info = await fetchYouTubeInfo(yt.id);
+      if (info.status === "blocked")
+        return { fieldErrors: { url: "Pemilik video ini tidak membenarkan ia dipaparkan di laman lain. Pilih video lain." }, error: "Video tidak boleh dibenamkan." };
+      if (info.status === "missing") return { fieldErrors: { url: "Video tidak dijumpai, peribadi atau telah dipadam." }, error: "Video tidak dijumpai." };
+      if (!title) title = info.title ?? "";
+      row = { kind: "youtube" as const, youtube_id: yt.id, start_seconds: yt.start, url: "", thumbnail_url: null, open_mode: "embed" as const };
+    } else {
+      const info = await fetchLinkInfo(linkUrl!);
+      if (!title) title = info.title ?? "";
+      let open_mode: "embed" | "tab";
+      if (input.open_mode === "auto") {
+        open_mode = info.embeddable ? "embed" : "tab";
+        if (info.embeddable === false) note = "link_tab";
+      } else open_mode = input.open_mode;
+      row = { kind: "link" as const, youtube_id: "", start_seconds: 0, url: linkUrl!, thumbnail_url: input.thumbnail_url ?? info.image, open_mode };
+    }
     if (title.length < 2) return { fieldErrors: { title: "Tajuk tidak dapat diambil secara automatik. Sila isi tajuk." }, error: "Sila semak medan yang ditanda." };
-    const row = {
+    const r = await saveVideo(id || null, {
+      ...row,
       title,
-      youtube_id: yt.id,
-      start_seconds: yt.start,
       description: input.description,
       subject_id: input.subject_id,
       display_order: input.display_order,
       status: input.status,
-    };
-    const r = await saveVideo(id || null, row);
-    if (!r) return { error: "Video tidak dijumpai." };
+    });
+    if (!r) return { error: "Bahan tidak dijumpai." };
     savedId = r;
   } catch (e) {
-    console.error("[kit] save video", e instanceof Error ? e.message : e);
-    return { error: "Gagal menyimpan video." };
+    console.error("[kit] save resource", e instanceof Error ? e.message : e);
+    return { error: "Gagal menyimpan bahan." };
   }
   revalidateAll();
-  redirect(`/admin/kit?msg=${id ? "updated" : "video_added"}&v=${savedId}`);
+  redirect(`/admin/kit?msg=${note || (id ? "updated" : "video_added")}&v=${savedId}`);
 }
 
 export async function setVideoStatusAction(formData: FormData): Promise<void> {

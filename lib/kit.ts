@@ -16,11 +16,21 @@ export type Subject = {
   updated_at: string;
 };
 
+export type ResourceKind = "youtube" | "link";
+/** embed = dipaparkan dalam Playverse (iframe); tab = dibuka di tab baharu. */
+export type OpenMode = "embed" | "tab";
+
+/** Bahan pembelajaran: video YouTube ATAU pautan laman web (termasuk artifak Claude). */
 export type Video = {
   id: string;
+  kind: ResourceKind;
   title: string;
   youtube_id: string;
   start_seconds: number;
+  /** Pautan laman web (kind = "link"). */
+  url: string;
+  thumbnail_url: string | null;
+  open_mode: OpenMode;
   description: string;
   subject_id: string | null;
   display_order: number;
@@ -81,6 +91,37 @@ export function parseYouTubeUrl(raw: string): { id: string; start: number } | nu
   return { id, start: parseStart(u.searchParams.get("t") ?? u.searchParams.get("start")) };
 }
 
+export type LinkInfo = { host: string; icon: string; label: string; isClaude: boolean };
+
+/** Kenal pasti jenis laman untuk ikon & label kad. */
+export function linkInfo(raw: string): LinkInfo {
+  let host = "";
+  try {
+    host = new URL(raw).hostname.toLowerCase().replace(/^www\./, "");
+  } catch {
+    /* abaikan */
+  }
+  const is = (...hs: string[]) => hs.some((h) => host === h || host.endsWith(`.${h}`));
+  if (is("claude.ai", "claude.site", "claudeusercontent.com")) return { host, icon: "🤖", label: "Artifak Claude", isClaude: true };
+  if (is("docs.google.com", "drive.google.com", "sites.google.com")) return { host, icon: "📄", label: "Google", isClaude: false };
+  if (is("canva.com", "canva.site")) return { host, icon: "🎨", label: "Canva", isClaude: false };
+  if (is("wordwall.net", "quizizz.com", "kahoot.it", "kahoot.com", "liveworksheets.com")) return { host, icon: "🎯", label: "Aktiviti", isClaude: false };
+  if (is("musescore.com", "flat.io", "noteflight.com", "musictheory.net", "teoria.com", "chromemusiclab.com", "musiclab.chromeexperiments.com"))
+    return { host, icon: "🎼", label: "Muzik", isClaude: false };
+  if (is("vercel.app", "github.io", "netlify.app")) return { host, icon: "🎮", label: "Aplikasi web", isClaude: false };
+  return { host, icon: "🌐", label: "Laman web", isClaude: false };
+}
+
+/** URL untuk dibuka di tab baharu (YouTube atau pautan). */
+export function resourceHref(v: Pick<Video, "kind" | "url" | "youtube_id" | "start_seconds">) {
+  return v.kind === "link" ? v.url : ytWatch(v.youtube_id, v.start_seconds);
+}
+
+/** Gambar kad: thumbnail YouTube, atau gambar laman (og:image / muat naik). */
+export function resourceThumb(v: Pick<Video, "kind" | "youtube_id" | "thumbnail_url">): string | null {
+  return v.kind === "link" ? v.thumbnail_url : ytThumb(v.youtube_id);
+}
+
 export const ytThumb = (id: string) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 export const ytWatch = (id: string, start = 0) => `https://www.youtube.com/watch?v=${id}${start ? `&t=${start}s` : ""}`;
 export function ytEmbed(id: string, start = 0) {
@@ -134,4 +175,23 @@ export function subjectPath(subjects: Subject[], id: string | null): Subject[] {
     cur = cur.parent_id ? map.get(cur.parent_id) : undefined;
   }
   return out;
+}
+
+/** Elak pautan ke rangkaian dalaman (localhost / IP peribadi). */
+function isPrivateHost(host: string) {
+  const h = host.toLowerCase().replace(/^\[|\]$/g, "");
+  if (h === "localhost" || h.endsWith(".localhost") || h.endsWith(".local") || h.endsWith(".internal")) return true;
+  if (/^(127|10|0)\./.test(h) || /^192\.168\./.test(h) || /^169\.254\./.test(h) || /^172\.(1[6-9]|2\d|3[01])\./.test(h)) return true;
+  if (h === "::1" || h.startsWith("fc") || h.startsWith("fd") || h.startsWith("fe80")) return h.includes(":");
+  return false;
+}
+
+export function isAllowedLink(url: string): boolean {
+  if (!url || url.length > 2048 || /[\u0000-\u001F\u007F\s]/.test(url)) return false;
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" && !!u.hostname && !u.username && !u.password && !isPrivateHost(u.hostname);
+  } catch {
+    return false;
+  }
 }

@@ -11,7 +11,7 @@ import { descendantIds } from "@/lib/kit";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Kit Pembelajaran Muzik",
-  description: "Video pembelajaran muzik mengikut subjek: alat muzik, muzik komputer, aural dan teori.",
+  description: "Video dan bahan pembelajaran muzik mengikut subjek: alat muzik, muzik komputer, aural dan teori.",
 };
 
 export default async function KitPage() {
@@ -29,7 +29,7 @@ export default async function KitPage() {
           <span className="text-gradient">Kit Pembelajaran</span> <span className="text-gold-gradient">Muzik</span>
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-white/80 sm:text-base">
-          Video pembelajaran pilihan cikgu, disusun mengikut subjek. Pilih subjek, tonton video, kemudian uji kefahaman anda dengan kuiz.
+          Video dan laman pembelajaran pilihan cikgu, disusun mengikut subjek. Pilih subjek, tonton atau buka bahan, kemudian uji kefahaman anda dengan kuiz.
         </p>
       </header>
 
@@ -44,7 +44,7 @@ export default async function KitPage() {
 
       {recent.length > 0 && (
         <section aria-labelledby="kit-recent">
-          <SectionHeader id="kit-recent" title="Video Terbaru" icon="🆕" />
+          <SectionHeader id="kit-recent" title="Bahan Terbaru" icon="🆕" />
           <VideoRow videos={recent} subjects={subjects} />
         </section>
       )}

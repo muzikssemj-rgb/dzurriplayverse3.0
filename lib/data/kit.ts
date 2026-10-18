@@ -4,6 +4,9 @@ import { unstable_cache } from "next/cache";
 import { getDb } from "@/lib/db";
 import type { Db } from "@/lib/db/types";
 import { DATA_TAG, NotConfiguredError, logActivity, type DataResult } from "@/lib/data/store";
+import { evaluateFramePolicy, normalizeSafeUrl } from "@/lib/validation";
+export { isAllowedLink } from "@/lib/kit";
+import { getSiteUrl } from "@/lib/env";
 import { buildSubjectTree, flattenTree, type ContentStatus, type Subject, type SubjectNode, type Video } from "@/lib/kit";
 
 /**
@@ -85,9 +88,13 @@ function normalizeSubject(id: string, d: Partial<Subject>): Subject {
 function normalizeVideo(id: string, d: Partial<Video>): Video {
   return {
     id,
+    kind: d.kind === "link" ? "link" : "youtube",
     title: String(d.title ?? ""),
     youtube_id: String(d.youtube_id ?? ""),
     start_seconds: Number(d.start_seconds ?? 0),
+    url: String(d.url ?? ""),
+    thumbnail_url: d.thumbnail_url ?? null,
+    open_mode: d.open_mode === "embed" ? "embed" : "tab",
     description: String(d.description ?? ""),
     subject_id: d.subject_id ?? null,
     display_order: Number(d.display_order ?? 0),
@@ -220,5 +227,79 @@ export async function fetchYouTubeInfo(id: string): Promise<{ title: string | nu
     return { title: typeof j.title === "string" ? j.title.slice(0, 150) : null, status: "ok" };
   } catch {
     return { title: null, status: "unknown" };
+  }
+}
+
+const decode = (s: string) =>
+  s
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;|&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
+    .trim();
+
+function meta(html: string, key: string): string | null {
+  const re = new RegExp(`<meta[^>]+(?:property|name)=["']${key}["'][^>]*>`, "i");
+  const tag = re.exec(html)?.[0];
+  const c = tag && /content=["']([^"']*)["']/i.exec(tag)?.[1];
+  return c ? decode(c) : null;
+}
+
+/**
+ * Baca maklumat pautan (admin sahaja, semasa menyimpan): tajuk, gambar og:image,
+ * dan sama ada laman membenarkan dipaparkan dalam iframe Playverse.
+ * status "unknown" = laman tidak dapat dihubungi (cth. memerlukan log masuk / rangkaian).
+ */
+export async function fetchLinkInfo(url: string): Promise<{
+  title: string | null;
+  image: string | null;
+  embeddable: boolean | null;
+  reason: string | null;
+  status: "ok" | "unknown";
+}> {
+  try {
+    const res = await fetch(url, {
+      redirect: "follow",
+      signal: AbortSignal.timeout(6000),
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; DzurriPlayverse-LinkCheck/1.0)", Accept: "text/html,*/*" },
+      cache: "no-store",
+    });
+    const verdict = evaluateFramePolicy(
+      { xFrameOptions: res.headers.get("x-frame-options"), csp: res.headers.get("content-security-policy") },
+      getSiteUrl(),
+    );
+    let html = "";
+    if ((res.headers.get("content-type") ?? "").includes("html") && res.body) {
+      const reader = res.body.getReader();
+      const dec = new TextDecoder();
+      while (html.length < 300_000) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        html += dec.decode(value, { stream: true });
+        if (/<\/head>/i.test(html)) break;
+      }
+      reader.cancel().catch(() => {});
+    } else res.body?.cancel().catch(() => {});
+    const title = meta(html, "og:title") ?? (/<title[^>]*>([^<]{1,300})<\/title>/i.exec(html)?.[1] ? decode(/<title[^>]*>([^<]{1,300})<\/title>/i.exec(html)![1]) : null);
+    let image = meta(html, "og:image") ?? meta(html, "twitter:image");
+    if (image) {
+      try {
+        image = new URL(image, res.url || url).toString();
+      } catch {
+        image = null;
+      }
+    }
+    if (image && (!image.startsWith("https://") || !normalizeSafeUrl(image))) image = null;
+    return {
+      title: title ? title.slice(0, 150) : null,
+      image,
+      embeddable: res.ok ? verdict.embeddable : null,
+      reason: verdict.reason,
+      status: res.ok ? "ok" : "unknown",
+    };
+  } catch {
+    return { title: null, image: null, embeddable: null, reason: null, status: "unknown" };
   }
 }

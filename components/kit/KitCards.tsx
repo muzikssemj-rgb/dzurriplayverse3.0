@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ytThumb, type Subject, type SubjectNode, type Video } from "@/lib/kit";
+import { linkInfo, resourceThumb, type Subject, type SubjectNode, type Video } from "@/lib/kit";
 
 const GRADIENTS = [
   "from-fuchsia-700/80 via-violet-800/70 to-space",
@@ -11,22 +11,28 @@ const GRADIENTS = [
 ];
 
 export function VideoCard({ video, subject }: { video: Video; subject?: Pick<Subject, "name" | "icon"> | null }) {
+  const thumb = resourceThumb(video);
+  const li = video.kind === "link" ? linkInfo(video.url) : null;
   return (
     <article className="group glass relative flex h-full flex-col overflow-hidden transition hover:-translate-y-0.5 hover:border-cyan-electric/40 focus-within:border-cyan-electric/60">
       <div className="relative aspect-video overflow-hidden bg-space">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={ytThumb(video.youtube_id)}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          className="size-full object-cover transition duration-500 group-hover:scale-105"
-        />
-        <span className="absolute inset-0 grid place-items-center" aria-hidden="true">
-          <span className="grid size-14 place-items-center rounded-full bg-red-600/90 text-2xl text-white shadow-lg ring-4 ring-white/20 transition group-hover:scale-110">
-            ▶
+        {thumb ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={thumb} alt="" loading="lazy" decoding="async" className="size-full object-cover transition duration-500 group-hover:scale-105" />
+        ) : (
+          <span className="grid size-full place-items-center bg-gradient-to-br from-galaxy/50 via-space-3 to-cyan-electric/25 text-6xl transition duration-500 group-hover:scale-105" aria-hidden="true">
+            {li?.icon}
           </span>
-        </span>
+        )}
+        {video.kind === "youtube" ? (
+          <span className="absolute inset-0 grid place-items-center" aria-hidden="true">
+            <span className="grid size-14 place-items-center rounded-full bg-red-600/90 text-2xl text-white shadow-lg ring-4 ring-white/20 transition group-hover:scale-110">▶</span>
+          </span>
+        ) : (
+          <span className="absolute left-2 top-2 rounded-full bg-space/85 px-2.5 py-1 text-[11px] font-bold text-white ring-1 ring-white/20">
+            {li?.icon} {li?.label}
+          </span>
+        )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
         <h3 className="line-clamp-2 font-semibold leading-snug text-white">
@@ -88,7 +94,7 @@ export function SubjectCard({ node, index }: { node: SubjectNode; index: number 
         <span className="block font-display text-base font-black uppercase leading-tight tracking-wide drop-shadow">{node.name}</span>
         {node.description && <span className="mt-1 line-clamp-2 block text-xs text-white/80">{node.description}</span>}
         <span className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-semibold">
-          <span className="rounded-full bg-black/30 px-2 py-0.5">🎬 {node.video_count} video</span>
+          <span className="rounded-full bg-black/30 px-2 py-0.5">📚 {node.video_count} bahan</span>
           {node.children.length > 0 && <span className="rounded-full bg-black/30 px-2 py-0.5">🗂️ {node.children.length} kumpulan</span>}
         </span>
       </span>
