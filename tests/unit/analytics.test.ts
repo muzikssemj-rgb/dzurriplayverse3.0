@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { dayKey, deviceFromUA, lastDays, pageKeyFromPath, summarize, type DailyStats } from "@/lib/data/analytics";
 
 const day = (date: string, o: Partial<DailyStats> = {}): DailyStats => ({
-  date, views: 0, visitors: 0, plays: 0, app_views: 0, app_visitors: 0, new_visitors: 0, returning_visitors: 0,
-  hours: {}, pages: {}, devices: {}, games: {}, ...o,
+  date, views: 0, visitors: 0, plays: 0, opens: 0, quiz_plays: 0, app_views: 0, app_visitors: 0, new_visitors: 0, returning_visitors: 0,
+  hours: {}, pages: {}, devices: {}, games: {}, resources: {}, quizzes: {}, ...o,
 });
 
 describe("analytics helpers", () => {
@@ -13,6 +13,10 @@ describe("analytics helpers", () => {
     expect(pageKeyFromPath("/games/music-quest")).toBe("game");
     expect(pageKeyFromPath("/creator")).toBe("creator");
     expect(pageKeyFromPath("/weird/thing")).toBe("other");
+    expect(pageKeyFromPath("/kit")).toBe("kit");
+    expect(pageKeyFromPath("/kit/strings")).toBe("kit");
+    expect(pageKeyFromPath("/kit/tonton/abc")).toBe("kit_item");
+    expect(pageKeyFromPath("/kuiz/kuiz-strings")).toBe("kuiz");
   });
   it("detects device", () => {
     expect(deviceFromUA("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) Mobile/15E148")).toBe("mobile");
@@ -30,9 +34,12 @@ describe("analytics helpers", () => {
     for (let i = 0; i < 60; i++) rows.push(day(`d${String(i).padStart(2, "0")}`));
     rows[50] = day("d50", { visitors: 10, plays: 5 }); // minggu lepas
     rows[55] = day("d55", { visitors: 12, views: 30, plays: 30, hours: { h20: 25, h09: 5 }, devices: { mobile: 9, desktop: 3 }, games: { g1: 20, g2: 10 }, new_visitors: 8, returning_visitors: 4, app_visitors: 6 });
-    rows[59] = day("d59", { visitors: 3, views: 4, plays: 1 });
+    rows[59] = day("d59", { visitors: 3, views: 4, plays: 1, opens: 2, quiz_plays: 1, resources: { v1: 2 }, quizzes: { q1: 1 } });
     const s = summarize(rows);
-    expect(s.today).toEqual({ visitors: 3, views: 4, plays: 1 });
+    expect(s.today).toEqual({ visitors: 3, views: 4, plays: 1, opens: 2, quizPlays: 1 });
+    expect(s.resources).toEqual({ v1: 2 });
+    expect(s.quizzes).toEqual({ q1: 1 });
+    expect(s.month.opens).toBe(2);
     expect(s.week.visitors).toBe(15);
     expect(s.week.visitorsChange).toBe(50);
     expect(s.week.playsChange).toBe(520);

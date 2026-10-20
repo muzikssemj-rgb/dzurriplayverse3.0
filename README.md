@@ -175,7 +175,7 @@ Perintah lain:
 |---|---|
 | Lint, typecheck, build | ✅ |
 | Unit (Vitest): validasi URL, magic bytes, polisi iframe, token sesi, carian permainan, pautan YouTube, pokok subjek, pengiraan skor kuiz, token cubaan kuiz | ✅ 58/58 |
-| E2E Playwright: halaman awam, launcher, login, CRUD permainan, profil pencipta, **Kit Pembelajaran (subjek, video YouTube, pautan web & artifak Claude)**, **Kuiz Guru (cipta, main di telefon, skor server, papan skor, CSV, token palsu/ulang ditolak)**, had login, PWA | ✅ 125/125 |
+| E2E Playwright: halaman awam, launcher, login, CRUD permainan, profil pencipta, **Kit Pembelajaran (subjek, video YouTube, pautan web & artifak Claude)**, **Kuiz Guru (cipta, main di telefon, skor server, papan skor, CSV, token palsu/ulang ditolak)**, had login, PWA | ✅ 133/133 |
 
 **Penting:** ujian E2E dijalankan menggunakan **storan tempatan** yang menggantikan Firestore, kerana akses ke Google Cloud tidak tersedia dalam persekitaran pembangunan. Kod Firestore (`lib/db/firestore.ts`) kecil dan hanya menggunakan pertanyaan asas tanpa indeks komposit, tetapi ia **belum diuji terhadap projek Firebase sebenar**. Selepas deploy, uji log masuk, Add Game dan muat naik foto, atau jalankan `scripts/verify-deployment.mjs`.
 

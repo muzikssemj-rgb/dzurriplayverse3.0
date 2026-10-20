@@ -73,9 +73,10 @@ export function createLocalDb(): Db {
       c[id][field] = (Number(c[id][field]) || 0) + by;
       save();
     },
-    async bump(col: string, id: string, counters: Record<string, number>) {
+    async bump(col: string, id: string, counters: Record<string, number>, fields?: Doc) {
       const c = colOf(col);
       const doc = (c[id] ??= {});
+      Object.assign(doc, fields ?? {});
       for (const [path, by] of Object.entries(counters)) {
         const parts = path.split(".");
         let node = doc;

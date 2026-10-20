@@ -532,6 +532,21 @@ console.log("\n▶ Kit Pembelajaran Muzik & Kuiz Guru");
   check((await anon.request.get(BASE + `/api/admin/kuiz/${quiz.id}/csv`, { maxRedirects: 0 })).status() === 401, "CSV export requires owner login");
   await anon.close();
 
+  // Analitik: Kit, Kuiz & semua apps dikira dan dipaparkan
+  const today = rows("stats").filter((r) => r.id.startsWith("daily-")).sort((x, y) => y.id.localeCompare(x.id))[0];
+  check(today.opens >= 3 && (today.resources?.[vid.id] ?? 0) >= 1 && (today.resources?.[claudeLink.id] ?? 0) >= 1, `Kit item opens recorded (opens=${today.opens})`);
+  check(today.quiz_plays >= 2 && (today.quizzes?.[quiz.id] ?? 0) >= 2, `Quiz plays recorded (quiz_plays=${today.quiz_plays})`);
+  check((today.pages?.kit ?? 0) >= 1 && (today.pages?.kuiz ?? 0) >= 1, "Kit & Kuiz page views recorded");
+  await page.goto(BASE + "/admin/analytics");
+  await page.getByRole("heading", { name: /Semua permainan \/ apps/ }).waitFor();
+  check(await page.getByText(/Lawatan anda sendiri tidak dikira/).isVisible(), "Analytics explains owner visits are excluded");
+  check(await page.getByText(/Rekod terakhir diterima/).isVisible() && (await page.getByText(/baru sahaja|minit lalu/).count()) > 0, "Analytics shows when the last record arrived");
+  const appsTable = page.locator("section", { has: page.getByRole("heading", { name: /Semua permainan \/ apps/ }) });
+  check((await appsTable.locator("tbody tr").count()) === rows("games").filter((g) => g.status === "published").length, "Every published app listed in analytics (incl. new ones with 0 plays)");
+  check(await page.locator("section", { has: page.getByRole("heading", { name: /Bahan Kit Pembelajaran/ }) }).getByRole("link", { name: /Song Maker/ }).isVisible(), "Analytics lists Kit items");
+  check(await page.locator("section", { has: page.getByRole("heading", { name: /📝 Kuiz/ }) }).getByRole("link", { name: "Kuiz Keluarga Strings" }).isVisible(), "Analytics lists quizzes");
+  await page.screenshot({ path: `${OUT}/admin-analytics-full.png`, fullPage: true });
+
   // Padam video → hilang daripada awam
   await page.goto(BASE + "/admin/kit");
   await page.locator("li", { has: page.getByRole("link", { name: "Cara Memegang Bow Violin" }) }).getByRole("button", { name: "Padam" }).click();

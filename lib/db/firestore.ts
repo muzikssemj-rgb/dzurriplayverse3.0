@@ -62,8 +62,8 @@ export function createFirestoreDb(sa: ServiceAccount): Db {
         /* dokumen tiada — abaikan */
       }
     },
-    async bump(col: string, id: string, counters: Record<string, number>) {
-      const data: Doc = {};
+    async bump(col: string, id: string, counters: Record<string, number>, fields?: Doc) {
+      const data: Doc = { ...(fields ?? {}) };
       for (const [path, by] of Object.entries(counters)) {
         const parts = path.split(".");
         let node = data;

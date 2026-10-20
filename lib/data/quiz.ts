@@ -145,6 +145,10 @@ export async function listAdminQuizzes() {
   return [...quizzes].sort(sortQuiz).map((q) => ({ ...q, result_count: n.get(q.id) ?? 0 }));
 }
 
+export async function getQuizzesBrief() {
+  return (await loadQuizzes()).map((q) => ({ id: q.id, title: q.title, status: q.status, added: q.created_at }));
+}
+
 export async function getAdminQuiz(id: string): Promise<Quiz | null> {
   return (await loadQuizzes()).find((q) => q.id === id) ?? null;
 }

@@ -1,9 +1,8 @@
-import { cookies } from "next/headers";
 import { z } from "zod";
 import { deviceFromUA, pageKeyFromPath, recordEvent } from "@/lib/data/analytics";
 import { isDataConfigured } from "@/lib/env";
 import { isSameOrigin } from "@/lib/http";
-import { SESSION_COOKIE, verifySessionToken } from "@/lib/session";
+import { getAdmin } from "@/lib/auth";
 
 const schema = z.object({
   path: z.string().max(200),
@@ -15,8 +14,8 @@ const schema = z.object({
 /** POST /api/track — rekod satu paparan halaman (tanpa data peribadi). */
 export async function POST(request: Request) {
   if (!isSameOrigin(request) || !isDataConfigured()) return new Response(null, { status: 204 });
-  // Lawatan pemilik sendiri tidak dikira
-  if (verifySessionToken((await cookies()).get(SESSION_COOKIE)?.value)) return new Response(null, { status: 204 });
+  // Lawatan pemilik sendiri (sesi admin aktif dalam pelayar ini) tidak dikira
+  if (await getAdmin()) return new Response(null, { status: 204 });
   let body: unknown;
   try {
     body = await request.json();
@@ -29,6 +28,7 @@ export async function POST(request: Request) {
     await recordEvent({
       type: "view",
       page: pageKeyFromPath(p.data.path),
+      resourceId: /^\/kit\/tonton\/([A-Za-z0-9_-]{1,64})$/.exec(p.data.path)?.[1],
       device: deviceFromUA(request.headers.get("user-agent") ?? ""),
       standalone: p.data.standalone,
       firstToday: p.data.firstToday,

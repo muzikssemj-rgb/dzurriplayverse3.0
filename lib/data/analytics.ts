@@ -11,22 +11,28 @@ import { getDb } from "@/lib/db";
  */
 
 export type TrackInput = {
-  type: "view" | "play";
+  type: "view" | "play" | "quiz";
   page?: PageKey;
   gameId?: string;
+  /** Bahan Kit yang dibuka (halaman /kit/tonton/<id>). */
+  resourceId?: string;
+  quizId?: string;
   device: "mobile" | "tablet" | "desktop";
   standalone: boolean;
   firstToday: boolean;
   isNew: boolean;
 };
 
-export const PAGE_KEYS = ["home", "games", "game", "favorites", "me", "about", "creator", "install", "other"] as const;
+export const PAGE_KEYS = ["home", "games", "game", "kit", "kit_item", "kuiz", "favorites", "me", "about", "creator", "install", "other"] as const;
 export type PageKey = (typeof PAGE_KEYS)[number];
 
 export function pageKeyFromPath(path: string): PageKey {
   if (path === "/") return "home";
   if (path === "/games") return "games";
   if (path.startsWith("/games/")) return "game";
+  if (path.startsWith("/kit/tonton/")) return "kit_item";
+  if (path === "/kit" || path.startsWith("/kit/")) return "kit";
+  if (path === "/kuiz" || path.startsWith("/kuiz/")) return "kuiz";
   const k = path.replace(/^\//, "").split("/")[0];
   return (PAGE_KEYS as readonly string[]).includes(k) ? (k as PageKey) : "other";
 }
@@ -55,17 +61,25 @@ export async function recordEvent(e: TrackInput, now = new Date()): Promise<void
     c[`hours.${hourKey(now)}`] = 1;
     c[`pages.${e.page ?? "other"}`] = 1;
     if (e.standalone) c.app_views = 1;
+    if (e.resourceId && /^[A-Za-z0-9_-]{1,64}$/.test(e.resourceId)) {
+      c.opens = 1;
+      c[`resources.${e.resourceId}`] = 1;
+    }
     if (e.firstToday) {
       c.visitors = 1;
       c[`devices.${e.device}`] = 1;
       if (e.standalone) c.app_visitors = 1;
       c[e.isNew ? "new_visitors" : "returning_visitors"] = 1;
     }
+  } else if (e.type === "quiz") {
+    c.quiz_plays = 1;
+    if (e.quizId && /^[A-Za-z0-9_-]{1,64}$/.test(e.quizId)) c[`quizzes.${e.quizId}`] = 1;
   } else {
     c.plays = 1;
-    if (e.gameId) c[`games.${e.gameId}`] = 1;
+    if (e.gameId && /^[A-Za-z0-9_-]{1,64}$/.test(e.gameId)) c[`games.${e.gameId}`] = 1;
   }
-  await db.bump("stats", `daily-${dayKey(now)}`, c);
+  // last_at: masa rekod terakhir diterima — untuk semakan "adakah data masuk?" di admin
+  await db.bump("stats", `daily-${dayKey(now)}`, c, { last_at: now.toISOString() });
 }
 
 export type DailyStats = {
@@ -73,6 +87,8 @@ export type DailyStats = {
   views: number;
   visitors: number;
   plays: number;
+  opens: number;
+  quiz_plays: number;
   app_views: number;
   app_visitors: number;
   new_visitors: number;
@@ -81,12 +97,15 @@ export type DailyStats = {
   pages: Record<string, number>;
   devices: Record<string, number>;
   games: Record<string, number>;
+  last_at?: string | null;
+  resources: Record<string, number>;
+  quizzes: Record<string, number>;
 };
 
 function emptyDay(date: string): DailyStats {
   return {
-    date, views: 0, visitors: 0, plays: 0, app_views: 0, app_visitors: 0, new_visitors: 0, returning_visitors: 0,
-    hours: {}, pages: {}, devices: {}, games: {},
+    date, views: 0, visitors: 0, plays: 0, opens: 0, quiz_plays: 0, app_views: 0, app_visitors: 0, new_visitors: 0, returning_visitors: 0,
+    hours: {}, pages: {}, devices: {}, games: {}, resources: {}, quizzes: {},
   };
 }
 
@@ -133,7 +152,7 @@ export function summarize(all: DailyStats[]) {
   const visitors30 = total(d30, "visitors");
   const activeDays30 = d30.filter((r) => r.visitors > 0).length;
   return {
-    today: { visitors: today.visitors, views: today.views, plays: today.plays },
+    today: { visitors: today.visitors, views: today.views, plays: today.plays, opens: today.opens, quizPlays: today.quiz_plays },
     week: {
       visitors: visitors7,
       visitorsChange: pct(visitors7, visitorsPrev7),
@@ -149,13 +168,17 @@ export function summarize(all: DailyStats[]) {
       returningVisitors: total(d30, "returning_visitors"),
       appVisitors: total(d30, "app_visitors"),
       activeDays: activeDays30,
+      opens: total(d30, "opens"),
+      quizPlays: total(d30, "quiz_plays"),
       playsPerVisitor: visitors30 ? Math.round((total(d30, "plays") / visitors30) * 10) / 10 : 0,
     },
-    daily: d30.map((r) => ({ date: r.date, visitors: r.visitors, views: r.views, plays: r.plays })),
+    daily: d30.map((r) => ({ date: r.date, visitors: r.visitors, views: r.views, plays: r.plays, opens: r.opens, quizPlays: r.quiz_plays })),
     hourly,
     peakHour: peak.views > 0 ? peak.hour : null,
     devices: mergeMaps(d30.map((r) => r.devices)),
     pages: mergeMaps(d30.map((r) => r.pages)),
     games: mergeMaps(d30.map((r) => r.games)),
+    resources: mergeMaps(d30.map((r) => r.resources)),
+    quizzes: mergeMaps(d30.map((r) => r.quizzes)),
   };
 }

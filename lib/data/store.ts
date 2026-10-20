@@ -324,6 +324,19 @@ export async function listAdminGames(opts: { q?: string; categoryId?: string; st
   return { games: list.slice(from, from + ADMIN_PAGE_SIZE), total: list.length, page };
 }
 
+/** Semua permainan (ringkas) untuk jadual analitik — termasuk yang baru ditambah & belum dimain. */
+export async function getGamesBrief() {
+  // Bacaan terus (tanpa cache) supaya kiraan main sentiasa terkini di admin
+  return (await db().list<Partial<Game>>("games")).map((r) => ({ ...normalizeGame(r.data), id: r.id })).map((g) => ({
+    id: g.id,
+    title: g.title,
+    status: g.status,
+    play_count: g.play_count,
+    added: g.published_at ?? g.created_at,
+    launch_mode: g.launch_mode,
+  }));
+}
+
 export async function getGameTitles(): Promise<Map<string, string>> {
   return new Map((await loadGames()).map((g) => [g.id, g.title]));
 }
